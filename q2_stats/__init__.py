@@ -1,4 +1,3 @@
-
 # ----------------------------------------------------------------------------
 # Copyright (c) 2022, QIIME 2 development team.
 #
@@ -8,9 +7,12 @@
 # ----------------------------------------------------------------------------
 
 from ._version import get_versions
-
+from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
+                      TabularDataResourceDirFmt)
+from ._type import (StatsTable, Pairwise)
 
 __version__ = get_versions()['version']
 del get_versions
 
-__all__ = []
+__all__ = ['NDJSONFileFormat', 'TabularDataResourceDirFmt',
+           'DataResourceSchemaFileFormat', 'StatsTable', 'Pairwise']
