@@ -9,10 +9,12 @@
 from ._version import get_versions
 from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                       TabularDataResourceDirFmt)
-from ._type import (StatsTable, Pairwise)
+from ._type import (StatsTable, Pairwise, GroupDist,
+                    Ordered, Unordered, Matched, Independent)
 
 __version__ = get_versions()['version']
 del get_versions
 
 __all__ = ['NDJSONFileFormat', 'TabularDataResourceDirFmt',
-           'DataResourceSchemaFileFormat', 'StatsTable', 'Pairwise']
+           'DataResourceSchemaFileFormat', 'StatsTable', 'Pairwise',
+           'GroupDist', 'Ordered', 'Unordered', 'Matched', 'Independent']

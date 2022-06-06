@@ -11,3 +11,12 @@ from qiime2.plugin import SemanticType
 StatsTable = SemanticType('StatsTable', field_names=['kind'])
 
 Pairwise = SemanticType('Pairwise', variant_of=StatsTable.field['kind'])
+
+GroupDist = SemanticType('GroupDist', field_names=['order', 'dependence'])
+
+Ordered = SemanticType('Ordered', variant_of=GroupDist.field['order'])
+Unordered = SemanticType('Unordered', variant_of=GroupDist.field['order'])
+
+Matched = SemanticType("Matched", variant_of=GroupDist.field['dependence'])
+Independent = SemanticType("Independent",
+                           variant_of=GroupDist.field['dependence'])

@@ -9,13 +9,14 @@
 import importlib
 
 from qiime2.plugin import Str, Plugin, Choices
-from q2_fmt._type import GroupDist, Matched, Independent, Ordered, Unordered
 
 import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
 from q2_stats._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                               TabularDataResourceDirFmt)
-from q2_stats._type import (StatsTable, Pairwise)
+from q2_stats._visualizer import plot_rainclouds
+from q2_stats._type import (StatsTable, Pairwise, GroupDist, Matched,
+                            Independent, Ordered, Unordered)
 import q2_stats._examples as ex
 
 plugin = Plugin(name='stats',
@@ -28,10 +29,13 @@ plugin = Plugin(name='stats',
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         TabularDataResourceDirFmt)
-plugin.register_semantic_types(StatsTable, Pairwise)
+plugin.register_semantic_types(StatsTable, Pairwise, GroupDist, Matched,
+                               Independent, Ordered, Unordered)
 
-plugin.register_semantic_type_to_format(StatsTable[Pairwise],
-                                        TabularDataResourceDirFmt)
+plugin.register_semantic_type_to_format(
+    GroupDist[Ordered | Unordered,
+              Matched | Independent] | StatsTable[Pairwise],
+    TabularDataResourceDirFmt)
 
 plugin.methods.register_function(
     function=mann_whitney_u,
@@ -122,6 +126,22 @@ plugin.methods.register_function(
     examples={
         'wilcoxon_baseline0': ex.wilcoxon_baseline0
     }
+)
+
+plugin.visualizers.register_function(
+    function=plot_rainclouds,
+    inputs={
+        'data': GroupDist[Ordered, Matched],
+        'stats': StatsTable[Pairwise]
+    },
+    parameters={},
+    input_descriptions={
+        'data': 'The group distributions to plot.',
+        'stats': 'Statistical tests to display.'
+    },
+    parameter_descriptions={},
+    name='Raincloud plots',
+    description='Plot raincloud distributions for each group.'
 )
 
 importlib.import_module('q2_stats._transformer')

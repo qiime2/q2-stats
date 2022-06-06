@@ -34,7 +34,7 @@ def wilcoxon_baseline0(use):
     timedist = use.init_artifact('timedist', faithpd_timedist_factory)
 
     stats_table, = use.action(
-        use.UsageAction('fmt', 'wilcoxon_srt'),
+        use.UsageAction('stats', 'wilcoxon_srt'),
         use.UsageInputs(
             distribution=timedist,
             compare='baseline',
@@ -54,7 +54,7 @@ def mann_whitney_pairwise(use):
     refdist = use.init_artifact('refdist', faithpd_refdist_factory)
 
     stats_table, = use.action(
-        use.UsageAction('fmt', 'mann_whitney_u'),
+        use.UsageAction('stats', 'mann_whitney_u'),
         use.UsageInputs(
             distribution=refdist,
             compare='all-pairwise',
