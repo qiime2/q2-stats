@@ -30,6 +30,12 @@ def faithpd_refdist_factory():
     )
 
 
+def stats_table_factory():
+    return qiime2.Artifact.import_data(
+        'StatsTable[Pairwise]', _get_data_from_tests('stats_table')
+    )
+
+
 def wilcoxon_baseline0(use):
     timedist = use.init_artifact('timedist', faithpd_timedist_factory)
 
@@ -67,3 +73,21 @@ def mann_whitney_pairwise(use):
     )
 
     stats_table.assert_output_type('StatsTable[Pairwise]')
+
+
+def plot_rainclouds(use):
+    timedist = use.init_artifact('timedist', faithpd_timedist_factory)
+    stats_table = use.init_artifact('stats_table', stats_table_factory)
+
+    _, raincloud = use.action(
+        use.UsageAction('stats', 'plot_rainclouds'),
+        use.UsageInputs(
+            data=timedist,
+            stats=stats_table,
+        ),
+        use.UsageOutputNames(
+            raincloud_plot='raincloud_plot'
+        )
+    )
+
+    raincloud.assert_output_type('Visualization')

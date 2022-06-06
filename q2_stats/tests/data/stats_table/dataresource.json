@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "fields": [
+      {
+        "title": "week",
+        "description": "...",
+        "name": "A:group",
+        "type": "integer"
+      },
+      {
+        "title": "count",
+        "description": "...",
+        "name": "A:n",
+        "type": "integer"
+      },
+      {
+        "title": "Median faith_pd",
+        "description": "...",
+        "name": "A:measure",
+        "type": "number"
+      },
+      {
+        "title": "week",
+        "description": "...",
+        "name": "B:group",
+        "type": "integer"
+      },
+      {
+        "title": "count",
+        "description": "...",
+        "name": "B:n",
+        "type": "integer"
+      },
+      {
+        "title": "Median faith_pd",
+        "description": "...",
+        "name": "B:measure",
+        "type": "number"
+      },
+      {
+        "title": "count",
+        "description": "...",
+        "name": "n",
+        "type": "integer"
+      },
+      {
+        "title": "Wilcoxon Signed Rank",
+        "description": "...",
+        "name": "test-statistic",
+        "type": "integer"
+      },
+      {
+        "title": "two-sided, asymptotic",
+        "description": "...",
+        "name": "p-value",
+        "type": "number"
+      },
+      {
+        "title": "Benjamini–Hochberg",
+        "description": "...",
+        "name": "q-value",
+        "type": "number"
+      }
+    ]
+  },
+  "format": "ndjson"
+}
