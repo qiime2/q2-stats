@@ -6,7 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from numpy import extract
 import pandas as pd
 import frictionless as fls
 from frictionless import Resource
