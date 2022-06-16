@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+from numpy import extract
 import pandas as pd
 import frictionless as fls
 from frictionless import Resource
@@ -33,16 +34,11 @@ def _3(df: TabularDataResourceDirFmt) -> pd.DataFrame:
     data = pd.read_json(str(path), lines=True)
     resource = df.metadata.view(fls.Resource)
 
-    # Need to identify the empty segment w/in data (if there were no
-    # comparewisesons in the ref dist due to single donor)
-    if data.values.size == 0:
-        # want to set data to just include the fields i.e. headers but not
-        # contain any actual data
-        data = resource.schema.fields
-    else:
-        for field in resource.schema.fields:
+    for field in resource.schema.fields:
+        if data.values.size == 0:
+            data = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
+        else:
             data[field['name']].attrs = field.to_dict()
-    # print(data)
     return data
 
 
