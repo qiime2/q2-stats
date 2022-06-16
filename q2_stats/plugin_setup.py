@@ -145,3 +145,4 @@ plugin.visualizers.register_function(
 )
 
 importlib.import_module('q2_stats._transformer')
+importlib.import_module('q2_stats._validator')
