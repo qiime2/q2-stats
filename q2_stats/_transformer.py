@@ -33,11 +33,13 @@ def _3(df: TabularDataResourceDirFmt) -> pd.DataFrame:
     data = pd.read_json(str(path), lines=True)
     resource = df.metadata.view(fls.Resource)
 
+    if data.empty:
+        data = pd.DataFrame(
+            columns=[c['name'] for c in resource.schema.fields])
+
     for field in resource.schema.fields:
-        if data.values.size == 0:
-            data = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
-        else:
-            data[field['name']].attrs = field.to_dict()
+        data[field['name']].attrs = field.to_dict()
+
     return data
 
 
