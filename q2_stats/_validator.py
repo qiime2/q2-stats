@@ -9,7 +9,7 @@
 import pandas as pd
 
 from qiime2.plugin import ValidationError
-from q2_fmt.plugin_setup import plugin
+from q2_stats.plugin_setup import plugin
 from q2_stats import GroupDist, Ordered, Unordered, Matched, Independent
 
 
