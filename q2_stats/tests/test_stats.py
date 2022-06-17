@@ -14,6 +14,7 @@ from qiime2.plugin.testing import TestPluginBase
 from q2_stats._stats import wilcoxon_srt, mann_whitney_u
 from q2_stats._examples import (faithpd_timedist_factory,
                                 faithpd_refdist_factory)
+from q2_stats._format import TabularDataResourceDirFmt
 
 
 class TestBase(TestPluginBase):
@@ -227,3 +228,14 @@ class TestStats(TestBase):
 
     def test_examples(self):
         self.execute_examples()
+
+
+class TestTransformers(TestBase):
+    def test_empty_tabular_data_resource_to_dataframe(self):
+        _, obs = self.transform_format(TabularDataResourceDirFmt,
+                                       pd.DataFrame,
+                                       filename='empty_data_dist')
+
+        exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
+
+        pd.testing.assert_frame_equal(obs, exp)
