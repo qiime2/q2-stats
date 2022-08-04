@@ -46,3 +46,27 @@ class TabularDataResourceDirFmt(model.DirectoryFormat):
             raise model.ValidationError(
                 'The dataresource does not completely describe'
                 ' the data.ndjson file')
+
+
+class DataLoafSliceFileFormat(model.TextFileFormat):
+    """Format for files within the DataLoaf directory.
+
+    First line is headers.
+
+    All files share the same number of columns and rows.
+
+    More to be added later.
+    """
+    def _validate_(self, level):
+        pass
+
+class DataLoafNutritionFactsFileFormat(model.TextFileFormat):
+    """Format for the associated metadata for each file in the DataLoaf.
+
+    More on this later.
+    """
+    def _validate_(self, level):
+        pass
+
+class DataLoafPackageDirFmt(model.DirectoryFormat):
+    pass
