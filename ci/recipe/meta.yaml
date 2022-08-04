@@ -25,7 +25,7 @@ requirements:
   run:
     - python {{ python }}
     - pandas {{ pandas }}
-    - scipy
+    - scipy {{ scipy }}
     - jinja2
     - frictionless
     - qiime2 {{ qiime2_epoch }}.*
