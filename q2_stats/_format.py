@@ -60,6 +60,7 @@ class DataLoafSliceFileFormat(model.TextFileFormat):
     def _validate_(self, level):
         pass
 
+
 class DataLoafNutritionFactsFileFormat(model.TextFileFormat):
     """Format for the associated metadata for each file in the DataLoaf.
 
@@ -67,6 +68,7 @@ class DataLoafNutritionFactsFileFormat(model.TextFileFormat):
     """
     def _validate_(self, level):
         pass
+
 
 class DataLoafPackageDirFmt(model.DirectoryFormat):
     pass
