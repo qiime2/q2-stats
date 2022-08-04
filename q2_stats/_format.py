@@ -48,20 +48,7 @@ class TabularDataResourceDirFmt(model.DirectoryFormat):
                 ' the data.ndjson file')
 
 
-class DataLoafSliceFileFormat(model.TextFileFormat):
-    """Format for files within the DataLoaf directory.
-
-    First line is headers.
-
-    All files share the same number of columns and rows.
-
-    More to be added later.
-    """
-    def _validate_(self, level):
-        pass
-
-
-class DataLoafNutritionFactsFileFormat(model.TextFileFormat):
+class DataPackageSchemaFileFormat(model.TextFileFormat):
     """Format for the associated metadata for each file in the DataLoaf.
 
     More on this later.
@@ -71,4 +58,9 @@ class DataLoafNutritionFactsFileFormat(model.TextFileFormat):
 
 
 class DataLoafPackageDirFmt(model.DirectoryFormat):
-    pass
+    data_slices = model.FileCollection(r'.+\.ndjson', format=NDJSONFileFormat)
+    nutrition_facts = model.File('dataresource.json',
+                                 format=DataPackageSchemaFileFormat)
+
+    def _validate_(self, level):
+        pass

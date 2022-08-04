@@ -14,8 +14,7 @@ import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
 from q2_stats._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                               TabularDataResourceDirFmt,
-                              DataLoafSliceFileFormat,
-                              DataLoafNutritionFactsFileFormat,
+                              DataPackageSchemaFileFormat,
                               DataLoafPackageDirFmt)
 from q2_stats._visualizer import plot_rainclouds
 from q2_stats._type import (StatsTable, Pairwise, GroupDist, Matched,
@@ -31,8 +30,7 @@ plugin = Plugin(name='stats',
                 short_description='Plugin for statistical analyses.')
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
-                        TabularDataResourceDirFmt, DataLoafSliceFileFormat,
-                        DataLoafNutritionFactsFileFormat,
+                        TabularDataResourceDirFmt, DataPackageSchemaFileFormat,
                         DataLoafPackageDirFmt)
 plugin.register_semantic_types(StatsTable, Pairwise, GroupDist, Matched,
                                Independent, Ordered, Unordered)
