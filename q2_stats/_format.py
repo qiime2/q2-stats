@@ -62,5 +62,11 @@ class DataLoafPackageDirFmt(model.DirectoryFormat):
     nutrition_facts = model.File('dataresource.json',
                                  format=DataPackageSchemaFileFormat)
 
+    def _check_nutrition_facts(self):
+        pass
+
+    def _check_matching_data_slices(self):
+        pass
+
     def _validate_(self, level):
         pass
