@@ -10,6 +10,7 @@ from qiime2.plugin import ValidationError, model
 
 from frictionless import validate
 import numpy as np
+import pandas as pd
 
 
 class NDJSONFileFormat(model.TextFileFormat):
@@ -63,21 +64,24 @@ class DataLoafPackageDirFmt(model.DirectoryFormat):
     nutrition_facts = model.File('dataresource.json',
                                  format=DataPackageSchemaFileFormat)
 
-    def _check_nutrition_facts(self, data_slices, nutrition_facts):
-        for slice in data_slices:
-            if nutrition_facts.columns != slice.columns:
+    def _check_nutrition_facts(self):
+        for slice in self.data_slices.iter_views(pd.DataFrame):
+            if self.nutrition_facts.columns != slice.columns:
                 raise ValidationError('The datapackage does not completely'
                                       ' describe the .ndjson files.')
 
-    def _check_matching_data_slices(self, data_slices):
+    def _check_matching_data_slices(self):
         slice_lengths = []
         slice_widths = []
-        for slice in data_slices:
-            slice_lengths += len(slice)
-            slice_widths += len(slice.columns)
-        if len(np.unique(slice_lengths)) or len(np.unique(slice_widths)) > 1:
+
+        for slice in self.data_slices.iter_views(pd.DataFrame):
+            slice_lengths.append(len(slice.index))
+            slice_widths.append(len(slice.columns))
+
+        if (len(np.unique(slice_lengths)) > 1
+                or len(np.unique(slice_widths)) > 1):
             raise ValidationError('.ndjson files are not all the same size.')
 
-    def _validate_(self, level, data_slices, nutrition_facts):
-        self._check_matching_data_slices(data_slices)
-        self._check_nutrition_facts(data_slices, nutrition_facts)
+    def _validate_(self, level):
+        self._check_matching_data_slices()
+        # self._check_nutrition_facts()
