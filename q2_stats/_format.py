@@ -9,6 +9,7 @@
 from qiime2.plugin import ValidationError, model
 
 from frictionless import validate
+import pandas as pd
 
 
 class NDJSONFileFormat(model.TextFileFormat):
@@ -39,10 +40,21 @@ class TabularDataResourceDirFmt(model.DirectoryFormat):
     metadata = model.File('dataresource.json',
                           format=DataResourceSchemaFileFormat)
 
-    def _validate_(self, level='min'):
+    def _check_dataresource_filepath(self):
         try:
             validate(str(self.path/'dataresource.json'))
         except ValidationError:
             raise model.ValidationError(
                 'The dataresource does not completely describe'
                 ' the data.ndjson file')
+
+    def _check_matching_metadata(self):
+        # TODO: use fls framework to handle the data structures here
+        if (self.data.view(pd.DataFrame).columns
+                != self.metadata.view(pd.DataFrame).columns):
+            raise ValidationError('The dataresource columns do not match the'
+                                  ' data.ndjson file columns.')
+
+    def _validate_(self, level='min'):
+        self._check_dataresource_filepath()
+        # self._check_matching_metadata()
