@@ -60,15 +60,15 @@ class DataPackageSchemaFileFormat(model.TextFileFormat):
 
 
 class DataLoafPackageDirFmt(model.DirectoryFormat):
-    data_slices = model.FileCollection(r'.+\.ndjson', format=NDJSONFileFormat)
-    nutrition_facts = model.File('dataresource.json',
+    data_slices = model.FileCollection(r'.+\.csv', format=NDJSONFileFormat)
+    nutrition_facts = model.File('datapackage.json',
                                  format=DataPackageSchemaFileFormat)
 
     def _check_nutrition_facts(self):
         for slice in self.data_slices.iter_views(pd.DataFrame):
             if self.nutrition_facts.columns != slice.columns:
                 raise ValidationError('The datapackage does not completely'
-                                      ' describe the .ndjson files.')
+                                      ' describe the .csv files.')
 
     def _check_matching_data_slices(self):
         slice_lengths = []
@@ -80,8 +80,13 @@ class DataLoafPackageDirFmt(model.DirectoryFormat):
 
         if (len(np.unique(slice_lengths)) > 1
                 or len(np.unique(slice_widths)) > 1):
-            raise ValidationError('.ndjson files are not all the same size.')
+            raise ValidationError('.csv files are not all the same size.')
 
     def _validate_(self, level):
-        self._check_matching_data_slices()
+        # self._check_matching_data_slices()
         # self._check_nutrition_facts()
+        pass
+
+    @data_slices.set_path_maker
+    def _data_slices_path_maker(self, slice_name):
+        return slice_name + '.csv'
