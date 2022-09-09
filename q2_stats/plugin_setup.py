@@ -8,7 +8,7 @@
 
 import importlib
 
-from qiime2.plugin import Str, Plugin, Choices
+from qiime2.plugin import Str, Plugin, Choices, Bool
 
 import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
@@ -90,7 +90,8 @@ plugin.methods.register_function(
     parameters={'compare': Str % Choices('baseline', 'consecutive'),
                 'baseline_group': Str,
                 'alternative': Str % Choices('two-sided', 'greater', 'less'),
-                'p_val_approx': Str % Choices('auto', 'exact', 'asymptotic')},
+                'p_val_approx': Str % Choices('auto', 'exact', 'asymptotic'),
+                'ignore_empty_comparator': Bool},
     outputs=[('stats', StatsTable[Pairwise])],
     parameter_descriptions={
         'compare': 'The type of comparison that will be used to analyze the'
@@ -115,7 +116,11 @@ plugin.methods.register_function(
                         ' distributions of up to 25 (inclusive) measurements,'
                         ' "asymptotic" will use a normal distribution,'
                         ' and "auto" will use either "exact" or "approx"'
-                        ' depending on size.'
+                        ' depending on size.',
+        'ignore_empty_comparator': 'Ignore any group that does not have any'
+                                   ' overlapping subjects with comparison group'
+                                   '. These groups will written as Nan in the'
+                                   ' stats table output'
     },
     output_descriptions={
         'stats': 'The Wilcoxon SRT table for either the "baseline"'
