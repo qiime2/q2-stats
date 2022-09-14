@@ -118,9 +118,9 @@ plugin.methods.register_function(
                         ' and "auto" will use either "exact" or "approx"'
                         ' depending on size.',
         'ignore_empty_comparator': 'Ignore any group that does not have any'
-                                   ' overlapping subjects with comparison group'
-                                   '. These groups will written as Nan in the'
-                                   ' stats table output'
+                                   ' overlapping subjects with comparison'
+                                   ' group. These groups will written as Nan'
+                                   ' in the stats table output'
     },
     output_descriptions={
         'stats': 'The Wilcoxon SRT table for either the "baseline"'

@@ -132,7 +132,7 @@ def _compare_mannwhitneyu(group_a, group_b, alternative, p_val_approx):
 def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
                  baseline_group: str = None,
                  alternative: str = 'two-sided',
-                 p_val_approx: str = 'auto', 
+                 p_val_approx: str = 'auto',
                  ignore_empty_comparator: bool = False) -> pd.DataFrame:
 
     if compare == 'baseline':
@@ -162,7 +162,7 @@ def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
         group_b.index.name = comp_b
 
         row = _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
-                               ignore_empty_comparator)
+                                ignore_empty_comparator)
 
         row['A:group'] = comp_a
         row['B:group'] = comp_b
@@ -217,7 +217,7 @@ def _comp_consecutive(distribution):
     yield from zip(timepoints, timepoints[1:])
 
 
-def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx, 
+def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
                       ignore_empty_comparator) -> dict:
     if p_val_approx == 'asymptotic':
         # wilcoxon differs from mannwhitneyu in arg value, but does the same
@@ -240,15 +240,17 @@ def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
         if ignore_empty_comparator:
             stat = float('nan')
             p_val = float('nan')
-        elif ignore_empty_comparator == False: 
+        elif not ignore_empty_comparator:
             raise ValueError("There is no subject overlap between Group %s and"
                              " Group %s. There has to be at least 1 subject"
                              " overlap between the groups. Group %s contains"
                              " these subjects: %s and Group %s contains these"
-                             " subjects: %s" %(group_a.index.name, 
-                             group_b.index.name, group_a.index.name, 
-                             list(group_a.index), group_b.index.name,
-                             list(group_b.index)))
+                             " subjects: %s" % (group_a.index.name,
+                                                group_b.index.name,
+                                                group_a.index.name,
+                                                list(group_a.index),
+                                                group_b.index.name,
+                                                list(group_b.index)))
     else:
         stat, p_val = scipy.stats.wilcoxon(
             filtered.iloc[:, 0], filtered.iloc[:, 1],
