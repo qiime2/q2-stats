@@ -9,8 +9,6 @@
 from qiime2.plugin import ValidationError, model
 
 from frictionless import validate
-import numpy as np
-import pandas as pd
 
 
 class NDJSONFileFormat(model.TextFileFormat):
@@ -29,6 +27,16 @@ class NDJSONFileFormat(model.TextFileFormat):
 class DataResourceSchemaFileFormat(model.TextFileFormat):
     """
     Format for data resource schema.
+
+    More on this later.
+    """
+    def _validate_(self, level):
+        pass
+
+
+class FrictionlessCSVFileFormat(model.TextFileFormat):
+    """
+    Format for frictionless CSV.
 
     More on this later.
     """
@@ -60,32 +68,10 @@ class DataPackageSchemaFileFormat(model.TextFileFormat):
 
 
 class DataLoafPackageDirFmt(model.DirectoryFormat):
-    data_slices = model.FileCollection(r'.+\.csv', format=NDJSONFileFormat)
+    data_slices = model.FileCollection(r'.+\.csv',
+                                       format=FrictionlessCSVFileFormat)
     nutrition_facts = model.File('datapackage.json',
                                  format=DataPackageSchemaFileFormat)
-
-    def _check_nutrition_facts(self):
-        for slice in self.data_slices.iter_views(pd.DataFrame):
-            if self.nutrition_facts.columns != slice.columns:
-                raise ValidationError('The datapackage does not completely'
-                                      ' describe the .csv files.')
-
-    def _check_matching_data_slices(self):
-        slice_lengths = []
-        slice_widths = []
-
-        for slice in self.data_slices.iter_views(pd.DataFrame):
-            slice_lengths.append(len(slice.index))
-            slice_widths.append(len(slice.columns))
-
-        if (len(np.unique(slice_lengths)) > 1
-                or len(np.unique(slice_widths)) > 1):
-            raise ValidationError('.csv files are not all the same size.')
-
-    def _validate_(self, level):
-        # self._check_matching_data_slices()
-        # self._check_nutrition_facts()
-        pass
 
     @data_slices.set_path_maker
     def _data_slices_path_maker(self, slice_name):

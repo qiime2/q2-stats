@@ -13,7 +13,9 @@ from q2_types.feature_data import FeatureData
 
 import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
-from q2_stats._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
+from q2_stats._format import (NDJSONFileFormat,
+                              DataResourceSchemaFileFormat,
+                              FrictionlessCSVFileFormat,
                               TabularDataResourceDirFmt,
                               DataPackageSchemaFileFormat,
                               DataLoafPackageDirFmt)
@@ -32,8 +34,8 @@ plugin = Plugin(name='stats',
                 short_description='Plugin for statistical analyses.')
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
-                        TabularDataResourceDirFmt, DataPackageSchemaFileFormat,
-                        DataLoafPackageDirFmt)
+                        FrictionlessCSVFileFormat, TabularDataResourceDirFmt,
+                        DataPackageSchemaFileFormat, DataLoafPackageDirFmt)
 
 plugin.register_semantic_types(StatsTable, Pairwise, GroupDist, Matched,
                                Independent, Ordered, Unordered,
