@@ -240,7 +240,7 @@ def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
         if ignore_empty_comparator:
             stat = float('nan')
             p_val = float('nan')
-        elif not ignore_empty_comparator:
+        else:
             raise ValueError("There is no subject overlap between Group %s and"
                              " Group %s. There has to be at least 1 subject"
                              " overlap between the groups. Group %s contains"
