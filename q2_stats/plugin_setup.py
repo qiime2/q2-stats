@@ -9,14 +9,21 @@
 import importlib
 
 from qiime2.plugin import Str, Plugin, Choices, Bool
+from q2_types.feature_data import FeatureData
+
 
 import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
-from q2_stats._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
-                              TabularDataResourceDirFmt)
+from q2_stats._format import (NDJSONFileFormat,
+                              DataResourceSchemaFileFormat,
+                              FrictionlessCSVFileFormat,
+                              TabularDataResourceDirFmt,
+                              DataPackageSchemaFileFormat,
+                              DataLoafPackageDirFmt)
 from q2_stats._visualizer import plot_rainclouds
 from q2_stats._type import (StatsTable, Pairwise, GroupDist, Matched,
-                            Independent, Ordered, Unordered)
+                            Independent, Ordered, Unordered,
+                            DifferentialAbundance)
 import q2_stats._examples as ex
 
 plugin = Plugin(name='stats',
@@ -28,14 +35,19 @@ plugin = Plugin(name='stats',
                 short_description='Plugin for statistical analyses.')
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
-                        TabularDataResourceDirFmt)
+                        FrictionlessCSVFileFormat, TabularDataResourceDirFmt,
+                        DataPackageSchemaFileFormat, DataLoafPackageDirFmt)
+
 plugin.register_semantic_types(StatsTable, Pairwise, GroupDist, Matched,
-                               Independent, Ordered, Unordered)
+                               Independent, Ordered, Unordered,
+                               DifferentialAbundance)
 
 plugin.register_semantic_type_to_format(
     GroupDist[Ordered | Unordered,
               Matched | Independent] | StatsTable[Pairwise],
     TabularDataResourceDirFmt)
+plugin.register_semantic_type_to_format(
+    FeatureData[DifferentialAbundance], DataLoafPackageDirFmt)
 
 plugin.methods.register_function(
     function=mann_whitney_u,

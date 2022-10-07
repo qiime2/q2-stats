@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import SemanticType
+from q2_types.feature_data import FeatureData
 
 StatsTable = SemanticType('StatsTable', field_names=['kind'])
 
@@ -17,6 +18,9 @@ GroupDist = SemanticType('GroupDist', field_names=['order', 'dependence'])
 Ordered = SemanticType('Ordered', variant_of=GroupDist.field['order'])
 Unordered = SemanticType('Unordered', variant_of=GroupDist.field['order'])
 
-Matched = SemanticType("Matched", variant_of=GroupDist.field['dependence'])
-Independent = SemanticType("Independent",
+Matched = SemanticType('Matched', variant_of=GroupDist.field['dependence'])
+Independent = SemanticType('Independent',
                            variant_of=GroupDist.field['dependence'])
+
+DifferentialAbundance = SemanticType('DifferentialAbundance',
+                                     variant_of=FeatureData.field['type'])
