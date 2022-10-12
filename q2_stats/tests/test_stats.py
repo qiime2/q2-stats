@@ -12,7 +12,7 @@ import numpy as np
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugin import ValidationError
 
-from q2_stats._stats import wilcoxon_srt, mann_whitney_u
+from q2_stats._stats import wilcoxon_srt, mann_whitney_u, _compare_wilcoxon
 from q2_stats._examples import (faithpd_timedist_factory,
                                 faithpd_refdist_factory)
 from q2_stats._format import TabularDataResourceDirFmt
@@ -231,6 +231,55 @@ class TestStats(TestBase):
 
     def test_examples(self):
         self.execute_examples()
+
+    def test_ignore_comparator_false(self):
+        groupa_dict = {"subject1": 0.8091,
+                       "subject2": 0.09271, "subject3": 0.9290}
+        groupa = pd.Series(data=groupa_dict, index=['subject1', 'subject2',
+                                                    'subject3'])
+        groupa.index.name = 1
+        groupb = {"subject4": 0.1809, "subject5": 0.9271, "subject6": 0.0290}
+        groupb = pd.Series(data=groupb, index=['subject4', 'subject5',
+                                               'subject6'])
+        groupb.index.name = 2
+
+        with self.assertRaisesRegex(ValueError, ".*no subject overlap between"
+                                    " Group 1 and Group 2.*['subject1',"
+                                    " 'subject2', 'subject3'].*['subject4',"
+                                    " 'subject5', 'subject6']"):
+            _compare_wilcoxon(group_a=groupa, group_b=groupb,
+                              alternative='two-sided',
+                              p_val_approx='auto',
+                              ignore_empty_comparator=False)
+
+    def test_ignore_comparator_true(self):
+        wil_stats_data = pd.DataFrame({
+            'id': ["sample1", "sample2", "sample3", "sample4"],
+            'measure': [0.9002, 0.8221, 0.0981, 0.0100],
+            'group': [1, 1, 2, 2],
+            'subject': ["subject1", "subject2", "subject3", "subject4"]
+        })
+
+        wil_stats_data['id'].attrs.update({
+            'title': 'Pairwise Comparison'})
+        wil_stats_data['measure'].attrs.update({
+            'title': 'Pairwise Comparison'})
+        stats_data = wilcoxon_srt(wil_stats_data, compare='baseline',
+                                  baseline_group=1,
+                                  ignore_empty_comparator=True)
+        exp_stats_data = pd.DataFrame({
+            'A:group': [1],
+            'A:n': [2],
+            'A:measure':  [0.8611500000000001],
+            'B:group': [2],
+            'B:n': [2],
+            'B:measure': [0.05405],
+            'n': [0],
+            'test-statistic': [float("Nan")],
+            'p-value': [float("Nan")],
+            'q-value': [float("Nan")]})
+
+        pd.testing.assert_frame_equal(stats_data, exp_stats_data)
 
 
 class TestTransformers(TestBase):

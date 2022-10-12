@@ -132,7 +132,8 @@ def _compare_mannwhitneyu(group_a, group_b, alternative, p_val_approx):
 def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
                  baseline_group: str = None,
                  alternative: str = 'two-sided',
-                 p_val_approx: str = 'auto') -> pd.DataFrame:
+                 p_val_approx: str = 'auto',
+                 ignore_empty_comparator: bool = False) -> pd.DataFrame:
 
     if compare == 'baseline':
         comparisons = _comp_baseline(distribution, baseline_group)
@@ -156,9 +157,12 @@ def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
         group_b = distribution[distribution['group'] == comp_b]
 
         group_a = group_a.set_index('subject')['measure']
+        group_a.index.name = comp_a
         group_b = group_b.set_index('subject')['measure']
+        group_b.index.name = comp_b
 
-        row = _compare_wilcoxon(group_a, group_b, alternative, p_val_approx)
+        row = _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
+                                ignore_empty_comparator)
 
         row['A:group'] = comp_a
         row['B:group'] = comp_b
@@ -213,7 +217,8 @@ def _comp_consecutive(distribution):
     yield from zip(timepoints, timepoints[1:])
 
 
-def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx) -> dict:
+def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
+                      ignore_empty_comparator) -> dict:
     if p_val_approx == 'asymptotic':
         # wilcoxon differs from mannwhitneyu in arg value, but does the same
         # test using a normal dist instead of the permutational dist so
@@ -231,9 +236,25 @@ def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx) -> dict:
         'n': len(filtered.index),
     }
 
-    stat, p_val = scipy.stats.wilcoxon(
-        filtered.iloc[:, 0], filtered.iloc[:, 1],
-        nan_policy='raise', mode=p_val_approx, alternative=alternative)
+    if filtered.empty:
+        if ignore_empty_comparator:
+            stat = float('nan')
+            p_val = float('nan')
+        else:
+            raise ValueError("There is no subject overlap between Group %s and"
+                             " Group %s. There has to be at least 1 subject"
+                             " overlap between the groups. Group %s contains"
+                             " these subjects: %s and Group %s contains these"
+                             " subjects: %s" % (group_a.index.name,
+                                                group_b.index.name,
+                                                group_a.index.name,
+                                                list(group_a.index),
+                                                group_b.index.name,
+                                                list(group_b.index)))
+    else:
+        stat, p_val = scipy.stats.wilcoxon(
+            filtered.iloc[:, 0], filtered.iloc[:, 1],
+            nan_policy='raise', mode=p_val_approx, alternative=alternative)
 
     results['test-statistic'] = stat
     results['p-value'] = p_val
