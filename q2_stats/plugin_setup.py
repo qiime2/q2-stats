@@ -21,8 +21,8 @@ from q2_stats._format import (NDJSONFileFormat,
                               DataPackageSchemaFileFormat,
                               DataLoafPackageDirFmt)
 from q2_stats._visualizer import plot_rainclouds
-from q2_stats._type import (StatsTable, Pairwise, GroupDist, Matched,
-                            Independent, Ordered, Unordered,
+from q2_stats._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist,
+                            Matched, Independent, Ordered, Unordered, Multi,
                             DifferentialAbundance)
 import q2_stats._examples as ex
 
@@ -38,13 +38,17 @@ plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         FrictionlessCSVFileFormat, TabularDataResourceDirFmt,
                         DataPackageSchemaFileFormat, DataLoafPackageDirFmt)
 
-plugin.register_semantic_types(StatsTable, Pairwise, GroupDist, Matched,
-                               Independent, Ordered, Unordered,
+plugin.register_semantic_types(StatsTable, Pairwise, GroupDist,
+                               NestedGroupDist, Matched, Independent,
+                               Ordered, Unordered, Multi,
                                DifferentialAbundance)
 
 plugin.register_semantic_type_to_format(
-    GroupDist[Ordered | Unordered,
-              Matched | Independent] | StatsTable[Pairwise],
+    GroupDist[Ordered | Unordered | Multi,
+              Matched | Independent] |
+    NestedGroupDist[Ordered | Unordered,
+                    Matched | Independent] |
+    StatsTable[Pairwise],
     TabularDataResourceDirFmt)
 plugin.register_semantic_type_to_format(
     FeatureData[DifferentialAbundance], DataLoafPackageDirFmt)
