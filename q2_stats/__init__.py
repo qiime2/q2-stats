@@ -10,8 +10,8 @@ from ._version import get_versions
 from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                       FrictionlessCSVFileFormat, TabularDataResourceDirFmt,
                       DataPackageSchemaFileFormat, DataLoafPackageDirFmt)
-from ._type import (StatsTable, Pairwise, GroupDist,
-                    Ordered, Unordered, Matched, Independent,
+from ._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist, Ordered,
+                    Unordered, Multi, Matched, Independent,
                     DifferentialAbundance)
 
 __version__ = get_versions()['version']
@@ -20,5 +20,6 @@ del get_versions
 __all__ = ['NDJSONFileFormat', 'DataResourceSchemaFileFormat',
            'FrictionlessCSVFileFormat', 'TabularDataResourceDirFmt',
            'DataLoafPackageDirFmt', 'DataPackageSchemaFileFormat',
-           'StatsTable', 'Pairwise', 'GroupDist', 'Ordered', 'Unordered',
-           'Matched', 'Independent', 'DifferentialAbundance']
+           'StatsTable', 'Pairwise', 'GroupDist', 'NestedGroupDist',
+           'Ordered', 'Unordered', 'Multi', 'Matched', 'Independent',
+           'DifferentialAbundance']
