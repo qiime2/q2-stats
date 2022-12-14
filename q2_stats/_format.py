@@ -34,16 +34,6 @@ class DataResourceSchemaFileFormat(model.TextFileFormat):
         pass
 
 
-class FrictionlessCSVFileFormat(model.TextFileFormat):
-    """
-    Format for frictionless CSV.
-
-    More on this later.
-    """
-    def _validate_(self, level):
-        pass
-
-
 class TabularDataResourceDirFmt(model.DirectoryFormat):
     data = model.File('data.ndjson', format=NDJSONFileFormat)
     metadata = model.File('dataresource.json',
@@ -56,23 +46,3 @@ class TabularDataResourceDirFmt(model.DirectoryFormat):
             raise model.ValidationError(
                 'The dataresource does not completely describe'
                 ' the data.ndjson file')
-
-
-class DataPackageSchemaFileFormat(model.TextFileFormat):
-    """Format for the associated metadata for each file in the DataLoaf.
-
-    More on this later.
-    """
-    def _validate_(self, level):
-        pass
-
-
-class DataLoafPackageDirFmt(model.DirectoryFormat):
-    data_slices = model.FileCollection(r'.+\.csv',
-                                       format=FrictionlessCSVFileFormat)
-    nutrition_facts = model.File('datapackage.json',
-                                 format=DataPackageSchemaFileFormat)
-
-    @data_slices.set_path_maker
-    def _data_slices_path_maker(self, slice_name):
-        return slice_name + '.csv'

@@ -15,8 +15,7 @@ from qiime2.plugin import ValidationError
 from q2_stats._stats import wilcoxon_srt, mann_whitney_u, _compare_wilcoxon
 from q2_stats._examples import (faithpd_timedist_factory,
                                 faithpd_refdist_factory)
-from q2_stats._format import (TabularDataResourceDirFmt,
-                              FrictionlessCSVFileFormat)
+from q2_stats._format import TabularDataResourceDirFmt
 from q2_stats._validator import (validate_all_dist_columns_present,
                                  validate_unique_subjects_within_group)
 
@@ -290,22 +289,6 @@ class TestTransformers(TestBase):
                                        filename='empty_data_dist')
 
         exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
-
-        pd.testing.assert_frame_equal(obs, exp)
-
-    def test_frictionless_csv_to_dataframe(self):
-        _, obs = self.transform_format(FrictionlessCSVFileFormat, pd.DataFrame,
-                                       filename='data_slice.csv')
-
-        exp = pd.DataFrame({
-            'feature_id': ['sample1'],
-            'bodysiteleft palm': [-4.391278379],
-            'bodysiteright palm': [-3.390748186],
-            'bodysitetongue': [-4.326335562],
-            'animalcat': [1.152330146],
-            'animalcow': [1.45003133],
-            'animalbird': [2.029340857]
-        })
 
         pd.testing.assert_frame_equal(obs, exp)
 
