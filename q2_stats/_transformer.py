@@ -13,7 +13,6 @@ from frictionless import Resource
 from q2_stats.plugin_setup import plugin
 from q2_stats._format import (NDJSONFileFormat,
                               DataResourceSchemaFileFormat,
-                              FrictionlessCSVFileFormat,
                               TabularDataResourceDirFmt)
 
 
@@ -74,11 +73,3 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
     metadata_resource.to_json(str(dir_fmt.path/'dataresource.json'))
 
     return dir_fmt
-
-
-@plugin.register_transformer
-def _5(obj: FrictionlessCSVFileFormat) -> pd.DataFrame:
-    path = obj.view(FrictionlessCSVFileFormat)
-    df = pd.read_csv(str(path))
-
-    return df

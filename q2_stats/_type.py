@@ -7,7 +7,6 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import SemanticType
-from q2_types.feature_data import FeatureData
 
 StatsTable = SemanticType('StatsTable', field_names=['kind'])
 
@@ -31,6 +30,3 @@ Matched = SemanticType('Matched',
 Independent = SemanticType('Independent',
                            variant_of=(GroupDist.field['dependence'],
                                        NestedGroupDist.field['dependence']))
-
-DifferentialAbundance = SemanticType('DifferentialAbundance',
-                                     variant_of=FeatureData.field['type'])
