@@ -68,12 +68,11 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
     metadata_dict = {'schema': metadata_obj}
     metadata_dict['format'] = 'ndjson'
     metadata_dict['path'] = 'data.ndjson'
-    json.dumps(metadata_dict)
 
     dir_fmt = TabularDataResourceDirFmt()
 
     dir_fmt.data.write_data(obj, pd.DataFrame)
-    with open(dir_fmt.path/'dataresource.json', 'w') as fh:
-        fh.write(json.dumps(metadata_dict))
+    with open(dir_fmt.path / 'dataresource.json', 'w') as fh:
+        fh.write(json.dumps(metadata_dict, indent=4))
 
     return dir_fmt
