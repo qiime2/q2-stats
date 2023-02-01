@@ -8,7 +8,7 @@
 
 import pandas as pd
 import frictionless as fls
-from frictionless import Resource
+import json
 
 from q2_stats.plugin_setup import plugin
 from q2_stats._format import (NDJSONFileFormat,
@@ -36,17 +36,17 @@ def _3(df: TabularDataResourceDirFmt) -> pd.DataFrame:
 
     if data.empty:
         data = pd.DataFrame(
-            columns=[c['name'] for c in resource.schema.fields])
+            columns=[c.name for c in resource.schema.fields])
 
     for field in resource.schema.fields:
-        data[field['name']].attrs = field.to_dict()
+        data[field.name].attrs = field.to_dict()
 
     return data
 
 
 @plugin.register_transformer
 def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
-    metadata_resource = Resource()
+    metadata_obj = []
 
     for col in obj.columns:
         series = obj[col]
@@ -62,14 +62,17 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
 
         metadata['name'] = col
         metadata['type'] = schema_dtype
-        metadata_resource.schema.add_field(source=metadata)
 
-    metadata_resource.data = 'data.ndjson'
-    metadata_resource.format = 'ndjson'
+        metadata_obj.append(metadata)
+
+    metadata_dict = {'schema': metadata_obj}
+    metadata_dict['format'] = 'ndjson'
+    metadata_dict['path'] = 'data.ndjson'
 
     dir_fmt = TabularDataResourceDirFmt()
 
     dir_fmt.data.write_data(obj, pd.DataFrame)
-    metadata_resource.to_json(str(dir_fmt.path/'dataresource.json'))
+    with open(dir_fmt.path / 'dataresource.json', 'w') as fh:
+        fh.write(json.dumps(metadata_dict, indent=4))
 
     return dir_fmt

@@ -27,5 +27,6 @@
       }
     ]
   },
-  "format": "ndjson"
+  "format": "ndjson",
+  "path": "data.ndjson"
 }
