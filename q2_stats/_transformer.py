@@ -32,8 +32,7 @@ def _2(obj: DataResourceSchemaFileFormat) -> fls.Resource:
 def _3(df: TabularDataResourceDirFmt) -> pd.DataFrame:
     path = df.data.view(NDJSONFileFormat)
     data = pd.read_json(str(path), lines=True)
-    schema = fls.Schema(data)
-    resource = fls.Resource(source=df.metadata, schema=schema)
+    resource = df.metadata.view(fls.Resource)
 
     if data.empty:
         data = pd.DataFrame(
@@ -66,7 +65,7 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
 
         metadata_obj.append(metadata)
 
-    metadata_dict = {'schema': metadata_obj}
+    metadata_dict = {'schema': {'fields': metadata_obj}}
     metadata_dict['format'] = 'ndjson'
     metadata_dict['path'] = 'data.ndjson'
 
