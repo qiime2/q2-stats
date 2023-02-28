@@ -28,5 +28,6 @@
     ]
   },
   "format": "ndjson",
-  "path": "data.ndjson"
+  "path": "data.ndjson",
+  "name": "data"
 }
