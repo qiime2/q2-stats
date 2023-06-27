@@ -20,9 +20,8 @@ __version__ = get_versions()['version']
 del get_versions
 
 __all__ = ['NDJSONFileFormat', 'DataResourceSchemaFileFormat',
-           'TabularDataResourceDirFmt',
+           'TabularDataResourceDirFmt', 'StatsTable', 'Pairwise',
            '_JSONFileFormat', '_JSONSchemaFileFormat', '_JSONSchemaDirFmt',
-           'StatsTable', 'Pairwise',
            'GroupDist', 'NestedGroupDist', 'Ordered', 'Unordered',
            'Multi', 'Matched', 'Independent',
            '_Dist1D', '_Independent', '_Matched',
