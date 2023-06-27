@@ -8,14 +8,22 @@
 
 from ._version import get_versions
 from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
-                      TabularDataResourceDirFmt)
+                      TabularDataResourceDirFmt,
+                      _JSONFileFormat, _JSONSchemaFileFormat,
+                      _JSONSchemaDirFmt)
 from ._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist, Ordered,
-                    Unordered, Multi, Matched, Independent)
+                    Unordered, Multi, Matched, Independent,
+                    _Dist1D, _Independent, _Matched,
+                    _Multi, _Ordered, _Unordered)
 
 __version__ = get_versions()['version']
 del get_versions
 
 __all__ = ['NDJSONFileFormat', 'DataResourceSchemaFileFormat',
-           'TabularDataResourceDirFmt', 'StatsTable', 'Pairwise',
+           'TabularDataResourceDirFmt',
+           '_JSONFileFormat', '_JSONSchemaFileFormat', '_JSONSchemaDirFmt',
+           'StatsTable', 'Pairwise',
            'GroupDist', 'NestedGroupDist', 'Ordered', 'Unordered',
-           'Multi', 'Matched', 'Independent']
+           'Multi', 'Matched', 'Independent',
+           '_Dist1D', '_Independent', '_Matched',
+           '_Multi', '_Ordered', '_Unordered']

@@ -8,7 +8,9 @@
 
 from qiime2.plugin import ValidationError, model
 
-from frictionless import validate
+import frictionless
+import json
+import jsonschema
 
 
 class NDJSONFileFormat(model.TextFileFormat):
@@ -41,8 +43,45 @@ class TabularDataResourceDirFmt(model.DirectoryFormat):
 
     def _validate_(self, level='min'):
         try:
-            validate(str(self.path/'dataresource.json'))
+            frictionless.validate(str(self.path/'dataresource.json'))
         except ValidationError:
             raise model.ValidationError(
                 'The dataresource does not completely describe'
                 ' the data.ndjson file')
+
+
+# WIP - JSON Formats
+class _JSONFileFormat(model.TextFileFormat):
+
+    def _validate_(self, level):
+        try:
+            # I don't think this is the right way to access this
+            json.load(self)
+        except ValidationError:
+            raise model.ValidationError('The input file is not valid JSON.')
+
+
+class _JSONSchemaFileFormat(model.TextFileFormat):
+
+    def _validate_(self, level):
+        with open('_schema.json', 'r') as fh:
+            schema = json.load(fh)
+
+        try:
+            jsonschema.validate(instance=self, schema=schema)
+        except ValidationError:
+            raise model.ValidationError('The data schema provided does not'
+                                        ' validate against the metaschema.')
+
+
+class _JSONSchemaDirFmt(model.DirectoryFormat):
+    data = model.File('data.json', format=_JSONFileFormat)
+    schema = model.File('schema.json', format=_JSONSchemaFileFormat)
+
+    def _validate_(self, level):
+        try:
+            # not sure if this is the right way to access these objects yet
+            jsonschema.validate(instance=self.data, schema=self.schema)
+        except ValidationError:
+            raise model.ValidationError('The data provided does not match'
+                                        ' the schema requirements.')

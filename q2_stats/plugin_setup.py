@@ -14,10 +14,15 @@ import q2_stats
 from q2_stats._stats import mann_whitney_u, wilcoxon_srt
 from q2_stats._format import (NDJSONFileFormat,
                               DataResourceSchemaFileFormat,
-                              TabularDataResourceDirFmt)
+                              TabularDataResourceDirFmt,
+                              _JSONFileFormat,
+                              _JSONSchemaFileFormat,
+                              _JSONSchemaDirFmt)
 from q2_stats._visualizer import plot_rainclouds
 from q2_stats._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist,
-                            Matched, Independent, Ordered, Unordered, Multi)
+                            Matched, Independent, Ordered, Unordered, Multi,
+                            _Dist1D, _Independent, _Matched,
+                            _Multi, _Ordered, _Unordered)
 import q2_stats._examples as ex
 
 plugin = Plugin(name='stats',
@@ -29,11 +34,16 @@ plugin = Plugin(name='stats',
                 short_description='Plugin for statistical analyses.')
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
-                        TabularDataResourceDirFmt)
+                        TabularDataResourceDirFmt,
+                        _JSONFileFormat,
+                        _JSONSchemaFileFormat,
+                        _JSONSchemaDirFmt)
 
 plugin.register_semantic_types(StatsTable, Pairwise, GroupDist,
                                NestedGroupDist, Matched, Independent,
-                               Ordered, Unordered, Multi)
+                               Ordered, Unordered, Multi,
+                               _Dist1D, _Independent, _Matched,
+                               _Multi, _Ordered, _Unordered)
 
 plugin.register_semantic_type_to_format(
     GroupDist[Ordered | Unordered | Multi,
@@ -42,6 +52,11 @@ plugin.register_semantic_type_to_format(
                     Matched | Independent] |
     StatsTable[Pairwise],
     TabularDataResourceDirFmt)
+
+plugin.register_semantic_type_to_format(
+    _Dist1D[_Ordered | _Unordered | _Multi,
+            _Matched | _Independent],
+    _JSONSchemaDirFmt)
 
 plugin.methods.register_function(
     function=mann_whitney_u,

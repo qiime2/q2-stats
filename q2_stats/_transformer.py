@@ -13,7 +13,10 @@ import json
 from q2_stats.plugin_setup import plugin
 from q2_stats._format import (NDJSONFileFormat,
                               DataResourceSchemaFileFormat,
-                              TabularDataResourceDirFmt)
+                              TabularDataResourceDirFmt,
+                              _JSONFileFormat,
+                              _JSONSchemaFileFormat,
+                              _JSONSchemaDirFmt)
 
 
 @plugin.register_transformer
@@ -77,3 +80,41 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
         fh.write(json.dumps(metadata_dict, indent=4))
 
     return dir_fmt
+
+
+# WIP - JSON file format transformers
+@plugin.register_transformer
+def _5(obj: pd.DataFrame) -> _JSONFileFormat:
+    ff = _JSONFileFormat()
+    obj.to_json(str(ff), date_format='iso')
+    return ff
+
+
+@plugin.register_transformer
+def _6(ff: _JSONFileFormat) -> pd.DataFrame:
+    df = pd.read_json(str(ff))
+    return df
+
+
+# Not sure if we need these two transformers to/from DF for the actual schema
+@plugin.register_transformer
+def _7(obj: pd.DataFrame) -> _JSONSchemaFileFormat:
+    ff = _JSONSchemaFileFormat()
+    obj.to_json(str(ff), date_format='iso')
+    return ff
+
+
+@plugin.register_transformer
+def _8(ff: _JSONSchemaFileFormat) -> pd.DataFrame:
+    df = pd.read_json(str(ff))
+    return df
+
+
+@plugin.register_transformer
+def _9(obj: pd.DataFrame) -> _JSONSchemaDirFmt:
+    pass
+
+
+@plugin.register_transformer
+def _10(obj: _JSONSchemaDirFmt) -> pd.DataFrame:
+    pass
