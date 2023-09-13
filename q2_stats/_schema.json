@@ -1,40 +1,93 @@
 {
-    "id":"#root",
+  "id": "#root",
+  "properties": {
+    "index": {
+      "type": "object",
+      "id": "#index",
       "properties": {
-        "index": {
-          "type": "object",
-          "id": "#index",
-          "properties": {
-            "index_type": {"enum": ["single", "multi"]}
-        },
-        "oneOf": [
-            {"if": {
-                "properties": {"index_type": {"const": "single"}}
-            },
-            "then": {
-                "properties": {"name": {"type": "string"}}
-            },
-            "if": {
-                "properties": {"index_type": {"const": "multi"}}
-            },
-            "then": {
-                "properties": {"name": {"type": "array"}}
-            }}
-        ],
-        "required": ["index_type", "name"]
-        },
-        "data": {
-          "type": "object",
-          "id": "#data",
-          "properties": {
-            "index": {"enum": [{"$ref": "#/properties/index"}, null]},
-            "columns": {"type": "array"},
-            "types": {"enum": ["string", "integer", "float", "datetime", "enum"]},
-            "description": {"type": "string"}
-          },
-          "required": ["index", "columns", "types"],
-          "additionalProperties": true,
-          "orientation": "rows"
+        "type": {
+          "enum": [
+            "single",
+            "multi"
+          ]
         }
-      }
+      },
+      "oneOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "single"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "column": {
+                "type": "string"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "type": {
+                "const": "multi"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "column": {
+                "type": "array"
+              }
+            }
+          }
+        }
+      ],
+      "required": [
+        "type",
+        "column"
+      ]
+    },
+    "data": {
+      "type": "object",
+      "id": "#data",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "index": {
+          "enum": [
+            {
+              "$ref": "#/properties/index"
+            },
+            null
+          ]
+        },
+        "columns": {
+          "type": "array"
+        },
+        "types": {
+          "enum": [
+            "string",
+            "integer",
+            "float",
+            "datetime",
+            "enum"
+          ]
+        },
+        "descriptions": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "index",
+        "columns",
+        "types"
+      ],
+      "additionalProperties": true,
+      "orientation": "rows"
     }
+  }
+}
