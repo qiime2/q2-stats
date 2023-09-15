@@ -1,6 +1,12 @@
 {
   "id": "#root",
   "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
     "index": {
       "type": "object",
       "id": "#index",
@@ -49,6 +55,23 @@
         "column"
       ]
     },
+    "INSDC": {
+      "type": "object",
+      "id": "#INSDC",
+      "properties": {
+        "type": {
+          "default": null,
+          "enum": [
+            null,
+            "not applicable",
+            "missing",
+            "not collected",
+            "not provided",
+            "restricted access"
+          ]
+        }
+      }
+    },
     "data": {
       "type": "object",
       "id": "#data",
@@ -56,38 +79,54 @@
         "title": {
           "type": "string"
         },
-        "index": {
-          "enum": [
-            {
-              "$ref": "#/properties/index"
-            },
-            null
-          ]
+        "description": {
+          "type": "string"
         },
-        "columns": {
-          "type": "array"
-        },
-        "types": {
+        "type": {
           "enum": [
             "string",
             "integer",
             "float",
             "datetime",
+            "time",
             "enum"
           ]
         },
-        "descriptions": {
-          "type": "string"
+        "missing": {
+          "enum": [
+            {"$ref": "#/properties/INSDC"}
+          ]
         }
       },
       "required": [
-        "title",
-        "index",
-        "columns",
-        "types"
+        "type",
+        "title"
       ],
-      "additionalProperties": true,
-      "orientation": "rows"
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "id": "#metadata",
+      "additionalProperties": true
+    },
+    "column": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "type": "array"
+        },
+        "data": {
+          "enum": [
+            {"$ref": "#/properties/data"}
+          ]
+        },
+        "metadata": {
+          "enum": [
+            {"$ref": "#/properties/metadata"}
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   }
 }
