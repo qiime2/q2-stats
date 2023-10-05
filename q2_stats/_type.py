@@ -30,3 +30,17 @@ Matched = SemanticType('Matched',
 Independent = SemanticType('Independent',
                            variant_of=(GroupDist.field['dependence'],
                                        NestedGroupDist.field['dependence']))
+
+# WIP - GroupDist refactoring
+_Dist1D = SemanticType('_Dist1D', field_names=['_order', '_dependence'])
+
+_Ordered = SemanticType('_Ordered', variant_of=(_Dist1D.field['_order']))
+
+_Unordered = SemanticType('_Unordered', variant_of=(_Dist1D.field['_order']))
+
+_Multi = SemanticType('_Multi', variant_of=_Dist1D.field['_order'])
+
+_Matched = SemanticType('_Matched', variant_of=(_Dist1D.field['_dependence']))
+
+_Independent = SemanticType('_Independent',
+                            variant_of=(_Dist1D.field['_dependence']))
