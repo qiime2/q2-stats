@@ -9,13 +9,14 @@
 from ._version import get_versions
 from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                       TabularDataResourceDirFmt)
-from ._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist, Ordered,
-                    Unordered, Multi, Matched, Independent)
+from ._type import (StatsTable, Pairwise, Dist1D, Ordered, Unordered,
+                    Nested_Ordered, Nested_Unordered, Multi,
+                    Matched, Independent)
 
 __version__ = get_versions()['version']
 del get_versions
 
 __all__ = ['NDJSONFileFormat', 'DataResourceSchemaFileFormat',
            'TabularDataResourceDirFmt', 'StatsTable', 'Pairwise',
-           'GroupDist', 'NestedGroupDist', 'Ordered', 'Unordered',
-           'Multi', 'Matched', 'Independent']
+           'Dist1D', 'Ordered', 'Unordered', 'Nested_Ordered',
+           'Nested_Unordered', 'Multi', 'Matched', 'Independent']

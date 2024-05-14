@@ -14,8 +14,6 @@ Pairwise = SemanticType('Pairwise', variant_of=StatsTable.field['kind'])
 
 Dist1D = SemanticType('Dist1D', field_names=['order', 'dependence'])
 
-Dist1D = SemanticType('GroupDist', field_names=['order', 'dependence'])
-
 Ordered = SemanticType('Ordered', variant_of=(Dist1D.field['order']))
 Unordered = SemanticType('Unordered', variant_of=(Dist1D.field['order']))
 Multi = SemanticType('Multi', variant_of=Dist1D.field['order'])
