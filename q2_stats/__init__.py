@@ -18,5 +18,5 @@ del get_versions
 
 __all__ = ['NDJSONFileFormat', 'DataResourceSchemaFileFormat',
            'TabularDataResourceDirFmt', 'StatsTable', 'Pairwise',
-           'Dist1D', 'Ordered', 'Unordered', 'Nested_Ordered',
-           'Nested_Unordered', 'Multi', 'Matched', 'Independent']
+           'Dist1D', 'Ordered', 'Unordered', 'NestedOrdered',
+           'NestedUnordered', 'Multi', 'Matched', 'Independent']
