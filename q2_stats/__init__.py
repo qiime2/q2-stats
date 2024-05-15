@@ -10,7 +10,7 @@ from ._version import get_versions
 from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
                       TabularDataResourceDirFmt)
 from ._type import (StatsTable, Pairwise, Dist1D, Ordered, Unordered,
-                    Nested_Ordered, Nested_Unordered, Multi,
+                    NestedOrdered, NestedUnordered, Multi,
                     Matched, Independent)
 
 __version__ = get_versions()['version']
