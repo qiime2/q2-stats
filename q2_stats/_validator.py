@@ -14,7 +14,6 @@ from q2_stats import (Dist1D, Ordered, Unordered, NestedOrdered,
                       NestedUnordered, Matched, Independent)
 
 
-
 @plugin.register_validator(Dist1D[Ordered | Unordered,
                            Matched | Independent])
 def validate_all_dist_columns_present(data: pd.DataFrame, level):
