@@ -33,7 +33,7 @@ plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         TabularDataResourceDirFmt)
 
 plugin.register_semantic_types(StatsTable, Pairwise, Dist1D,
-                               Nested_Ordered, Nested_Unordered, Matched,
+                               NestedOrdered, NestedUnordered, Matched,
                                Independent, Ordered, Unordered, Multi)
 
 plugin.register_semantic_type_to_format(
