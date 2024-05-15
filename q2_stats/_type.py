@@ -17,7 +17,7 @@ Dist1D = SemanticType('Dist1D', field_names=['order', 'dependence'])
 Ordered = SemanticType('Ordered', variant_of=(Dist1D.field['order']))
 Unordered = SemanticType('Unordered', variant_of=(Dist1D.field['order']))
 Multi = SemanticType('Multi', variant_of=Dist1D.field['order'])
-Nested_Ordered = SemanticType('NestedOrdered',
+NestedOrdered = SemanticType('NestedOrdered',
                               variant_of=(Dist1D.field['order']))
 Nested_Unordered = SemanticType('NestedUnordered',
                                 variant_of=(Dist1D.field['order']))
