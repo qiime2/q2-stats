@@ -37,7 +37,7 @@ plugin.register_semantic_types(StatsTable, Pairwise, Dist1D,
                                Independent, Ordered, Unordered, Multi)
 
 plugin.register_semantic_type_to_format(
-    Dist1D[Ordered | Unordered | Nested_Ordered | Nested_Unordered | Multi,
+    Dist1D[Ordered | Unordered | NestedOrdered | NestedUnordered | Multi,
            Matched | Independent] |
     StatsTable[Pairwise],
     TabularDataResourceDirFmt)
