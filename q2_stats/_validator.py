@@ -10,10 +10,10 @@ import pandas as pd
 
 from qiime2.plugin import ValidationError
 from q2_stats.plugin_setup import plugin
-from q2_stats import GroupDist, Ordered, Unordered, Matched, Independent
+from q2_stats import Dist1D, Ordered, Unordered, Matched, Independent
 
 
-@plugin.register_validator(GroupDist[Ordered | Unordered,
+@plugin.register_validator(Dist1D[Ordered | Unordered,
                            Matched | Independent])
 def validate_all_dist_columns_present(data: pd.DataFrame, level):
     req_cols = ['id', 'measure', 'group']
@@ -22,7 +22,7 @@ def validate_all_dist_columns_present(data: pd.DataFrame, level):
             raise ValidationError(f'"{col}" not found in distribution.')
 
 
-@plugin.register_validator(GroupDist[Ordered | Unordered, Matched])
+@plugin.register_validator(Dist1D[Ordered | Unordered, Matched])
 def validate_unique_subjects_within_group(data: pd.DataFrame, level):
     if 'subject' not in data.columns:
         raise ValidationError('"subject" not found in distribution.')

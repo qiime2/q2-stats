@@ -12,21 +12,17 @@ StatsTable = SemanticType('StatsTable', field_names=['kind'])
 
 Pairwise = SemanticType('Pairwise', variant_of=StatsTable.field['kind'])
 
-GroupDist = SemanticType('GroupDist', field_names=['order', 'dependence'])
+Dist1D = SemanticType('Dist1D', field_names=['order', 'dependence'])
 
-NestedGroupDist = SemanticType('NestedGroupDist', field_names=['order',
-                                                               'dependence'])
-
-Ordered = SemanticType('Ordered', variant_of=(GroupDist.field['order'],
-                                              NestedGroupDist.field['order']))
-Unordered = SemanticType('Unordered',
-                         variant_of=(GroupDist.field['order'],
-                                     NestedGroupDist.field['order']))
-Multi = SemanticType('Multi', variant_of=GroupDist.field['order'])
+Ordered = SemanticType('Ordered', variant_of=(Dist1D.field['order']))
+Unordered = SemanticType('Unordered', variant_of=(Dist1D.field['order']))
+Multi = SemanticType('Multi', variant_of=Dist1D.field['order'])
+NestedOrdered = SemanticType('NestedOrdered',
+                             variant_of=(Dist1D.field['order']))
+NestedUnordered = SemanticType('NestedUnordered',
+                               variant_of=(Dist1D.field['order']))
 
 Matched = SemanticType('Matched',
-                       variant_of=(GroupDist.field['dependence'],
-                                   NestedGroupDist.field['dependence']))
+                       variant_of=(Dist1D.field['dependence']))
 Independent = SemanticType('Independent',
-                           variant_of=(GroupDist.field['dependence'],
-                                       NestedGroupDist.field['dependence']))
+                           variant_of=(Dist1D.field['dependence']))

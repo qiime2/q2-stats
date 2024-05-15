@@ -16,8 +16,9 @@ from q2_stats._format import (NDJSONFileFormat,
                               DataResourceSchemaFileFormat,
                               TabularDataResourceDirFmt)
 from q2_stats._visualizer import plot_rainclouds
-from q2_stats._type import (StatsTable, Pairwise, GroupDist, NestedGroupDist,
-                            Matched, Independent, Ordered, Unordered, Multi)
+from q2_stats._type import (StatsTable, Pairwise, Dist1D,
+                            Matched, Independent, Ordered, Unordered, Multi,
+                            NestedOrdered, NestedUnordered)
 import q2_stats._examples as ex
 
 plugin = Plugin(name='stats',
@@ -31,23 +32,21 @@ plugin = Plugin(name='stats',
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         TabularDataResourceDirFmt)
 
-plugin.register_semantic_types(StatsTable, Pairwise, GroupDist,
-                               NestedGroupDist, Matched, Independent,
-                               Ordered, Unordered, Multi)
+plugin.register_semantic_types(StatsTable, Pairwise, Dist1D,
+                               NestedOrdered, NestedUnordered, Matched,
+                               Independent, Ordered, Unordered, Multi)
 
 plugin.register_semantic_type_to_format(
-    GroupDist[Ordered | Unordered | Multi,
-              Matched | Independent] |
-    NestedGroupDist[Ordered | Unordered,
-                    Matched | Independent] |
+    Dist1D[Ordered | Unordered | NestedOrdered | NestedUnordered | Multi,
+           Matched | Independent] |
     StatsTable[Pairwise],
     TabularDataResourceDirFmt)
 
 plugin.methods.register_function(
     function=mann_whitney_u,
-    inputs={'distribution': GroupDist[Unordered | Ordered, Independent],
-            'against_each': GroupDist[Unordered | Ordered,
-                                      Matched | Independent]},
+    inputs={'distribution': Dist1D[Unordered | Ordered, Independent],
+            'against_each': Dist1D[Unordered | Ordered,
+                                   Matched | Independent]},
     parameters={'compare': Str % Choices('reference', 'all-pairwise'),
                 'reference_group': Str,
                 'alternative': Str % Choices('two-sided', 'greater', 'less'),
@@ -92,7 +91,7 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=wilcoxon_srt,
-    inputs={'distribution': GroupDist[Ordered, Matched]},
+    inputs={'distribution': Dist1D[Ordered, Matched]},
     parameters={'compare': Str % Choices('baseline', 'consecutive'),
                 'baseline_group': Str,
                 'alternative': Str % Choices('two-sided', 'greater', 'less'),
@@ -142,7 +141,7 @@ plugin.methods.register_function(
 plugin.visualizers.register_function(
     function=plot_rainclouds,
     inputs={
-        'data': GroupDist[Ordered, Matched],
+        'data': Dist1D[Ordered, Matched],
         'stats': StatsTable[Pairwise]
     },
     parameters={},
