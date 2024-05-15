@@ -19,7 +19,7 @@ Unordered = SemanticType('Unordered', variant_of=(Dist1D.field['order']))
 Multi = SemanticType('Multi', variant_of=Dist1D.field['order'])
 NestedOrdered = SemanticType('NestedOrdered',
                               variant_of=(Dist1D.field['order']))
-Nested_Unordered = SemanticType('NestedUnordered',
+NestedUnordered = SemanticType('NestedUnordered',
                                 variant_of=(Dist1D.field['order']))
 
 Matched = SemanticType('Matched',
