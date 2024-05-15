@@ -18,7 +18,7 @@ from q2_stats._format import (NDJSONFileFormat,
 from q2_stats._visualizer import plot_rainclouds
 from q2_stats._type import (StatsTable, Pairwise, Dist1D,
                             Matched, Independent, Ordered, Unordered, Multi,
-                            Nested_Ordered, Nested_Unordered)
+                            NestedOrdered, NestedUnordered)
 import q2_stats._examples as ex
 
 plugin = Plugin(name='stats',
