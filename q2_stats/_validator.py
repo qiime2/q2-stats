@@ -10,7 +10,8 @@ import pandas as pd
 
 from qiime2.plugin import ValidationError
 from q2_stats.plugin_setup import plugin
-from q2_stats import Dist1D, Ordered, Unordered, Matched, Independent
+from q2_stats import (Dist1D, Ordered, Unordered, NestedOrdered,
+                      NestedUnordered, Matched, Independent)
 
 
 @plugin.register_validator(Dist1D[Ordered | Unordered,
@@ -34,3 +35,12 @@ def validate_unique_subjects_within_group(data: pd.DataFrame, level):
                 'Unique subject found more than once within an individual'
                 ' group. Group(s) where duplicated subject was found:'
                 f' [{group_id}] Duplicated subjects: {dupes}')
+
+
+@plugin.register_validator(Dist1D[NestedOrdered | NestedUnordered,
+                           Matched | Independent])
+def validate_all_nesteddist_columns_present(data: pd.DataFrame, level):
+    req_cols = ['id', 'measure', 'group', 'class', "level"]
+    for col in req_cols:
+        if col not in data.columns:
+            raise ValidationError(f'"{col}" not found in distribution.')
