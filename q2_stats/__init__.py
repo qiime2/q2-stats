@@ -7,11 +7,11 @@
 # ----------------------------------------------------------------------------
 
 from ._version import get_versions
-from ._format import (NDJSONFileFormat, DataResourceSchemaFileFormat,
-                      TabularDataResourceDirFmt)
-from ._type import (StatsTable, Pairwise, Dist1D, Ordered, Unordered,
-                    NestedOrdered, NestedUnordered, Multi,
-                    Matched, Independent)
+from q2_stats.types import (NDJSONFileFormat, DataResourceSchemaFileFormat,
+                            TabularDataResourceDirFmt)
+from q2_stats.types import (StatsTable, Pairwise, Dist1D, Ordered, Unordered,
+                            NestedOrdered, NestedUnordered, Multi,
+                            Matched, Independent)
 
 __version__ = get_versions()['version']
 del get_versions

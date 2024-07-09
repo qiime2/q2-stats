@@ -11,9 +11,9 @@ import frictionless as fls
 import json
 
 from q2_stats.plugin_setup import plugin
-from q2_stats._format import (NDJSONFileFormat,
-                              DataResourceSchemaFileFormat,
-                              TabularDataResourceDirFmt)
+from q2_stats.types import (NDJSONFileFormat,
+                            DataResourceSchemaFileFormat,
+                            TabularDataResourceDirFmt)
 
 
 @plugin.register_transformer

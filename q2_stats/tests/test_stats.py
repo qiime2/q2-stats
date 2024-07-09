@@ -12,12 +12,14 @@ import numpy as np
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugin import ValidationError
 
-from q2_stats._stats import wilcoxon_srt, mann_whitney_u, _compare_wilcoxon
-from q2_stats._examples import (faithpd_timedist_factory,
-                                faithpd_refdist_factory)
-from q2_stats._format import TabularDataResourceDirFmt
-from q2_stats._validator import (validate_all_dist_columns_present,
-                                 validate_unique_subjects_within_group)
+from q2_stats.hypothesis.two_sample import (
+    wilcoxon_srt, mann_whitney_u, _compare_wilcoxon)
+from q2_stats.examples import (faithpd_timedist_factory,
+                               faithpd_refdist_factory)
+from q2_stats.types import TabularDataResourceDirFmt
+from q2_stats.types.setup.validators import (
+    validate_all_dist_columns_present,
+    validate_unique_subjects_within_group)
 
 
 class TestBase(TestPluginBase):

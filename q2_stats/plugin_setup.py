@@ -11,15 +11,11 @@ import importlib
 from qiime2.plugin import Str, Plugin, Choices, Bool
 
 import q2_stats
-from q2_stats._stats import mann_whitney_u, wilcoxon_srt
-from q2_stats._format import (NDJSONFileFormat,
-                              DataResourceSchemaFileFormat,
-                              TabularDataResourceDirFmt)
-from q2_stats._visualizer import plot_rainclouds
-from q2_stats._type import (StatsTable, Pairwise, Dist1D,
-                            Matched, Independent, Ordered, Unordered, Multi,
-                            NestedOrdered, NestedUnordered)
-import q2_stats._examples as ex
+from q2_stats.hypothesis import mann_whitney_u, wilcoxon_srt
+from q2_stats.plots import plot_rainclouds
+from q2_stats.types import (StatsTable, Pairwise, Dist1D,
+                            Matched, Independent, Ordered, Unordered)
+import q2_stats.examples as ex
 
 plugin = Plugin(name='stats',
                 version=q2_stats.__version__,
@@ -29,18 +25,6 @@ plugin = Plugin(name='stats',
                             ' statistical analyses.',
                 short_description='Plugin for statistical analyses.')
 
-plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
-                        TabularDataResourceDirFmt)
-
-plugin.register_semantic_types(StatsTable, Pairwise, Dist1D,
-                               NestedOrdered, NestedUnordered, Matched,
-                               Independent, Ordered, Unordered, Multi)
-
-plugin.register_semantic_type_to_format(
-    Dist1D[Ordered | Unordered | NestedOrdered | NestedUnordered | Multi,
-           Matched | Independent] |
-    StatsTable[Pairwise],
-    TabularDataResourceDirFmt)
 
 plugin.methods.register_function(
     function=mann_whitney_u,
@@ -154,5 +138,5 @@ plugin.visualizers.register_function(
     description='Plot raincloud distributions for each group.'
 )
 
-importlib.import_module('q2_stats._transformer')
-importlib.import_module('q2_stats._validator')
+# Load type half of the plugin
+importlib.import_module('q2_stats.types.setup')
