@@ -1,12 +1,13 @@
 import importlib
 
-from q2_stats.plugin_setup import plugin
-from q2_stats.types import (NDJSONFileFormat,
-                            DataResourceSchemaFileFormat,
-                            TabularDataResourceDirFmt)
-from q2_stats.types import (StatsTable, Pairwise, Dist1D,
-                            Matched, Independent, Ordered, Unordered, Multi,
-                            NestedOrdered, NestedUnordered)
+from .. import (NDJSONFileFormat,
+               DataResourceSchemaFileFormat,
+               TabularDataResourceDirFmt,
+               StatsTable, Pairwise, Dist1D,
+               Matched, Independent, Ordered, Unordered, Multi,
+               NestedOrdered, NestedUnordered)
+
+from ...plugin_setup import plugin
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         TabularDataResourceDirFmt)
@@ -22,5 +23,5 @@ plugin.register_semantic_type_to_format(
     StatsTable[Pairwise],
     TabularDataResourceDirFmt)
 
-importlib.import_module('q2_stats.types.setup.transformers')
-importlib.import_module('q2_stats.types.setup.validators')
+importlib.import_module('._transformers', __name__)
+importlib.import_module('._validators', __name__)

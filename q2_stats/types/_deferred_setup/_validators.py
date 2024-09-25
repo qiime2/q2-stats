@@ -9,9 +9,9 @@
 import pandas as pd
 
 from qiime2.plugin import ValidationError
-from q2_stats.plugin_setup import plugin
-from q2_stats import (Dist1D, Ordered, Unordered, NestedOrdered,
-                      NestedUnordered, Matched, Independent)
+from .. import (Dist1D, Ordered, Unordered, NestedOrdered,
+                NestedUnordered, Matched, Independent)
+from ...plugin_setup import plugin
 
 
 @plugin.register_validator(Dist1D[Ordered | Unordered,

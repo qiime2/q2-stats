@@ -20,12 +20,33 @@ def plot_rainclouds(output_dir: str, data: pd.DataFrame,
         table1, stats = _make_stats(stats)
 
     J_ENV = jinja2.Environment(
-        loader=jinja2.PackageLoader('q2_stats', 'assets')
+        loader=jinja2.PackageLoader('q2_stats.plots', 'specs')
     )
 
-    x_label = data['measure'].attrs['title']
-    y_label = data['group'].attrs['title']
-    subject_unit = data['subject'].attrs['title']
+    extras = {}
+    is_multi = False
+
+    x_label = data['measure'].attrs.get('title', 'measure')
+    if 'group' in data.columns:
+        y_label = data['group'].attrs.get('title', 'group')
+    else:
+        is_multi = True
+        y_label = 'group'
+        data = data.copy()
+        data['group'] = data['class']
+    if 'subject' in data.columns:
+        subject_unit = data['subject'].get('title', 'subject')
+        extras.update({
+            'lightning': {"name": "$show_lightning",
+                          "value": True,
+                          "bind": {"input": "checkbox"}},
+        })
+    else:
+        subject_unit = data['id'].get('title', 'sample')
+        extras.update({
+            'lightning': {"name": "$show_lightning",
+                          "value": False},
+        })
     title = f'{x_label} of {subject_unit} across {y_label}'
     figure1 = (
         f'Raincloud plots showing the distribution of subjects\''
@@ -38,16 +59,36 @@ def plot_rainclouds(output_dir: str, data: pd.DataFrame,
         f' across adjacent groups are visually comparable between subjects.')
 
     index = J_ENV.get_template('index.html')
-    data = json.loads(data.to_json(orient='records'))
+    records = json.loads(data.to_json(orient='records'))
 
-    spec_fp = pkg_resources.resource_filename(
-        'q2_stats', os.path.join('assets', 'spec.json'))
+    if 'class' in data.columns:
+        spec_fp = pkg_resources.resource_filename(
+            'q2_stats.plots', os.path.join('specs', 'raincloud_multi.json'))
+        selection_opts = []
+        selection_labels = []
+        for cls in data['class'].unique():
+            selection_opts.append([cls, ''])
+            selection_labels.append(cls)
+            if not is_multi:
+                for lvl in data[data['class'] == cls]['level'].unique():
+                    selection_opts.append([cls, lvl])
+                    selection_labels.append(f'{cls} > {lvl}')
+
+        extras.update({
+            'class': selection_labels[0],
+            'selection_labels': selection_labels,
+            'selection_opts': selection_opts
+        })
+    else:
+        spec_fp = pkg_resources.resource_filename(
+            'q2_stats.plots', os.path.join('specs', 'raincloud_single.json'))
+
     with open(spec_fp) as fh:
         json_obj = json.load(fh)
 
     full_spec = json_replace(json_obj,
-                             data=data, x_label=x_label, y_label=y_label,
-                             title=title)
+                             data=records, x_label=x_label, y_label=y_label,
+                             title=title, **extras)
 
     with open(os.path.join(output_dir, 'index.html'), 'w') as fh:
         spec_string = json.dumps(full_spec)
@@ -60,17 +101,17 @@ def json_replace(json_obj, **values):
     Search for elements of `{"{{REPLACE_PARAM}}": "some_key"}` and replace
     with the result of `values["some_key"]`.
     """
+    if type(json_obj) is dict and list(json_obj) == ["{{REPLACE_PARAM}}"]:
+        param_name = json_obj["{{REPLACE_PARAM}}"]
+        return values[param_name]
+
     if type(json_obj) is list:
         return [json_replace(x, **values) for x in json_obj]
+
     elif type(json_obj) is dict:
-        new = {}
-        for key, value in json_obj.items():
-            if type(value) is dict and list(value) == ["{{REPLACE_PARAM}}"]:
-                param_name = value["{{REPLACE_PARAM}}"]
-                new[key] = values[param_name]
-            else:
-                new[key] = json_replace(value, **values)
-        return new
+        return {key: json_replace(value, **values)
+                for key, value in json_obj.items()}
+
     else:
         return json_obj
 

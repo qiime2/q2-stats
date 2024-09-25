@@ -11,10 +11,11 @@ import importlib
 from qiime2.plugin import Str, Plugin, Choices, Bool
 
 import q2_stats
-from q2_stats.hypothesis import mann_whitney_u, wilcoxon_srt
+from q2_stats.hypotheses import mann_whitney_u, wilcoxon_srt
 from q2_stats.plots import plot_rainclouds
-from q2_stats.types import (StatsTable, Pairwise, Dist1D,
-                            Matched, Independent, Ordered, Unordered)
+from q2_stats.types import (StatsTable, Pairwise, Dist1D, Multi,
+                            Matched, Independent, Ordered, NestedOrdered,
+                            Unordered, NestedUnordered)
 import q2_stats.examples as ex
 
 plugin = Plugin(name='stats',
@@ -125,7 +126,10 @@ plugin.methods.register_function(
 plugin.visualizers.register_function(
     function=plot_rainclouds,
     inputs={
-        'data': Dist1D[Ordered, Matched],
+        'data': Dist1D[
+            Multi | Ordered | Unordered | NestedOrdered | NestedUnordered,
+            Matched | Independent
+        ],
         'stats': StatsTable[Pairwise]
     },
     parameters={},
@@ -139,4 +143,4 @@ plugin.visualizers.register_function(
 )
 
 # Load type half of the plugin
-importlib.import_module('q2_stats.types.setup')
+importlib.import_module('q2_stats.types._deferred_setup')

@@ -49,7 +49,7 @@
         },
         {
           "type": "window",
-          "groupby": ["subject"],
+          "groupby": [{"expr": "datum.subject || datum.id"}],
           "ops": ["first_value"],
           "fields": ["jitter"],
           "as": ["jitter"]
@@ -60,7 +60,8 @@
       "name": "row_table",
       "source": "table",
       "transform": [
-        {"type": "aggregate", "groupby": ["group", "level"], "cross": true},
+        {"type": "aggregate", "groupby": ["group", "level"], "cross": true,
+         "fields": ["class"], "as": ["count"]},
         {
           "type": "formula",
           "as": "outer_group",
@@ -73,7 +74,7 @@
         },
         {
           "type": "filter",
-          "expr": "$level == '' ? true : datum.level == $level"
+          "expr": "$level == '' ? datum.count > 0 : datum.level == $level"
         }
       ]
     }
@@ -91,20 +92,23 @@
     },
     {"name": "$n_rows", "value": 1, "update": "length(data('row_table'))"},
     {
-      "name": "$class", "value": "Type", "bind": {"input": "select", "options": [
-        "Type"
-      ]}
+      "name": "$class",
+      "value": {"{{REPLACE_PARAM}}": "class"},
+      "update": "$selection[0]"
     },
     {
-      "name": "$level", "value": "", "bind": {"input": "select", "options": [
-        "",
-        "Healthy Donor",
-        "Long-term Survival",
-        "Non_Responder",
-        "Other_Responder",
-        "Responder",
-        "Short-term Survival"
-      ]}
+      "name": "$level",
+      "value": "",
+      "update": "$selection[1]"
+    },
+    {
+      "name": "$selection",
+      "value": ["unif", ""],
+      "bind": {
+        "input": "select",
+        "labels": {"{{REPLACE_PARAM}}": "selection_labels"},
+        "options": {"{{REPLACE_PARAM}}": "selection_opts"}
+      }
     },
     {"name": "$transpose", "value": false, "bind": {"input": "checkbox"}},
     {
@@ -121,11 +125,11 @@
     },
     {
       "name": "$title",
-      "value": "faith_pd of SubjectID across week",
+      "value": {"{{REPLACE_PARAM}}": "title"},
       "bind": {"input": "input"}
     },
-    {"name": "$y_label", "value": "week", "bind": {"input": "input"}},
-    {"name": "$x_label", "value": "faith_pd", "bind": {"input": "input"}},
+    {"name": "$y_label", "value": {"{{REPLACE_PARAM}}": "y_label"}, "bind": {"input": "input"}},
+    {"name": "$x_label", "value": {"{{REPLACE_PARAM}}": "x_label"}, "bind": {"input": "input"}},
     {"name": "$include_zero", "value": true, "bind": {"input": "checkbox"}},
     {"name": "$show_cloud", "value": true, "bind": {"input": "checkbox"}},
     {
@@ -134,7 +138,7 @@
       "bind": {"input": "range", "min": 0, "max": 1}
     },
     {"name": "$show_rain", "value": true, "bind": {"input": "checkbox"}},
-    {"name": "$show_lightning", "value": true, "bind": {"input": "checkbox"}},
+    {"{{REPLACE_PARAM}}": "lightning"},
     {
       "name": "unit",
       "value": {},
@@ -217,7 +221,7 @@
       "on": [
         {
           "events": "@rain:mousedown, @rain:touchstart, @rain:mouseover",
-          "update": "datum.subject"
+          "update": "datum.subject || datum.id"
         },
         {
           "events": "window:mouseup, window:touchend, @rain:mouseout",
@@ -361,6 +365,7 @@
         {
           "type": "line",
           "from": {"data": "subject_line_table"},
+          "sort": {"field": "datum.group"},
           "encode": {
             "update": {
               "x": {"scale": "measure_scale", "field": "measure"},
@@ -525,7 +530,7 @@
                   "y": {"scale": "inner_jitter_scale", "field": "jitter"},
                   "tooltip": {"signal": "datum"},
                   "size": [
-                    {"test": "datum.subject == $active", "value": 200},
+                    {"test": "datum.subject == $active || datum.id == $active", "value": 200},
                     {"value": 50}
                   ]
                 }

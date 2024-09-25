@@ -10,16 +10,11 @@ import pandas as pd
 import numpy as np
 
 from qiime2.plugin.testing import TestPluginBase
-from qiime2.plugin import ValidationError
 
-from q2_stats.hypothesis.two_sample import (
+from q2_stats.hypotheses.pairwise import (
     wilcoxon_srt, mann_whitney_u, _compare_wilcoxon)
 from q2_stats.examples import (faithpd_timedist_factory,
                                faithpd_refdist_factory)
-from q2_stats.types import TabularDataResourceDirFmt
-from q2_stats.types.setup.validators import (
-    validate_all_dist_columns_present,
-    validate_unique_subjects_within_group)
 
 
 class TestBase(TestPluginBase):
@@ -282,37 +277,3 @@ class TestStats(TestBase):
             'q-value': [float("Nan")]})
 
         pd.testing.assert_frame_equal(stats_data, exp_stats_data)
-
-
-class TestTransformers(TestBase):
-    def test_empty_tabular_data_resource_to_dataframe(self):
-        _, obs = self.transform_format(TabularDataResourceDirFmt,
-                                       pd.DataFrame,
-                                       filename='empty_data_dist')
-
-        exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
-
-        pd.testing.assert_frame_equal(obs, exp)
-
-
-class TestValidators(TestBase):
-    def test_validators_missing_columns_in_dist(self):
-        with self.assertRaisesRegex(ValidationError, '"group" not found'
-                                    ' in distribution.'):
-            df = pd.DataFrame({
-                'id': ['S340445', 'S892825', 'S460691'],
-                'measure': [7.662921088, 8.431734297, 8.513263823]
-            })
-            validate_all_dist_columns_present(df, level=min)
-
-    def test_validators_unique_subjects_not_duplicated_per_group(self):
-        with self.assertRaisesRegex(ValidationError, 'Unique subject found'
-                                    ' more than once within an individual'
-                                    ' group.*0.*P26'):
-            df = pd.DataFrame({
-                'id': ['S116625', 'S813956'],
-                'measure': [7.662921088, 8.431734297],
-                'group': [0, 0],
-                'subject': ['P26', 'P26']
-            })
-            validate_unique_subjects_within_group(df, level=min)
