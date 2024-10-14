@@ -16,6 +16,7 @@ class TableJSONL(model.TextFileFormat):
         with self.open() as fh:
             assert fh.read(33)[:33] == '{"doctype":{"name":"table.jsonl",'
 
+
 TableJSONLDirFmt = model.SingleFileDirectoryFormat(
     'TableJSONLDirFmt', 'data.table.jsonl', TableJSONL)
 

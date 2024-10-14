@@ -63,7 +63,7 @@ def mann_whitney_u(distribution: pd.DataFrame, compare: str,
     df = pd.DataFrame(table)
     df = fdr_benjamini_hochberg(df)
     df = _set_attrs_mannwhitneyu(df, dists[idx_a], dists[idx_b],
-                               alternative, p_val_approx)
+                                 alternative, p_val_approx)
 
     return df
 

@@ -1,10 +1,11 @@
 import pandas as pd
 
+
 def set_pairwise_attrs(df: pd.DataFrame,
-                        dist_a: pd.DataFrame, dist_b: pd.DataFrame,
-                        group_measure: str,
-                        test_stat: str, test_desc: str,
-                        p_val: str, null_desc: str):
+                       dist_a: pd.DataFrame, dist_b: pd.DataFrame,
+                       group_measure: str,
+                       test_stat: str, test_desc: str,
+                       p_val: str, null_desc: str):
 
     df = df[['A:group', 'A:n', 'A:measure', 'B:group', 'B:n', 'B:measure',
              'n', 'test-statistic', 'p-value', 'q-value']]
@@ -19,11 +20,12 @@ def set_pairwise_attrs(df: pd.DataFrame,
     df['A:n'].attrs.update(group_n)
     df['B:n'].attrs.update(group_n)
 
+    def measure(dist, group):
+        return {
+           'title': f"{group_measure} of {dist['measure'].attrs['title']}",
+           'description': f'The {group_measure} measure of {group}.'
+        }
 
-    measure = lambda dist, group: {
-        'title': f"{group_measure} of {dist['measure'].attrs['title']}",
-        'description': f'The {group_measure} measure of {group}.'
-    }
     df['A:measure'].attrs.update(measure(dist_a, 'group A'))
     df['B:measure'].attrs.update(measure(dist_b, 'group B'))
 

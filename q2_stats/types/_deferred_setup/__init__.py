@@ -1,11 +1,11 @@
 import importlib
 
 from .. import (NDJSONFileFormat,
-               DataResourceSchemaFileFormat,
-               TabularDataResourceDirFmt,
-               StatsTable, Pairwise, Dist1D,
-               Matched, Independent, Ordered, Unordered, Multi,
-               NestedOrdered, NestedUnordered)
+                DataResourceSchemaFileFormat,
+                TabularDataResourceDirFmt,
+                StatsTable, Pairwise, Dist1D,
+                Matched, Independent, Ordered, Unordered, Multi,
+                NestedOrdered, NestedUnordered)
 
 from ...plugin_setup import plugin
 

@@ -103,14 +103,14 @@
     },
     {
       "name": "$selection",
-      "value": ["unif", ""],
+      "value": [{"{{REPLACE_PARAM}}": "class"}, ""],
       "bind": {
         "input": "select",
         "labels": {"{{REPLACE_PARAM}}": "selection_labels"},
         "options": {"{{REPLACE_PARAM}}": "selection_opts"}
       }
     },
-    {"name": "$transpose", "value": false, "bind": {"input": "checkbox"}},
+    {"name": "$transpose", "value": true, "bind": {"input": "checkbox"}},
     {
       "name": "$row_height",
       "value": 70,
@@ -118,8 +118,8 @@
       "on": [
         {
           "comment": "force a redraw if something related to the axes changes, the `force` param doesn't work as the initial layout seems to be outside the dataflow, so instead alternate by adding epsilon and rounding",
-          "events": [{"signal": "$level"}, {"signal": "$transpose"}, {"signal": "width"}],
-          "update": "$row_height == floor($row_height) ? $row_height + 0.00000000000001 : floor($row_height)"
+          "events": [{"signal": "$level"}, {"signal": "$selection"}, {"signal": "$transpose"}, {"signal": "width"}],
+          "update": "$row_height == floor($row_height) ? $row_height + 0.00001 : floor($row_height)"
         }
       ]
     },

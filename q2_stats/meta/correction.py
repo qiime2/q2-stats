@@ -19,5 +19,6 @@ def fdr_benjamini_hochberg(stats: pd.DataFrame) -> pd.DataFrame:
 
     return stats
 
+
 def fwer_holm_bonferroni(stats):
     return stats

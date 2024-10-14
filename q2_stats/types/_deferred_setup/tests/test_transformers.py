@@ -4,6 +4,7 @@ from qiime2.plugin.testing import TestPluginBase
 
 from .. import TabularDataResourceDirFmt
 
+
 class TestTransformers(TestPluginBase):
     package = 'q2_stats.tests'
 
