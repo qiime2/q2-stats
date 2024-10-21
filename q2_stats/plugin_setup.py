@@ -152,7 +152,10 @@ plugin.visualizers.register_function(
     },
     parameter_descriptions={},
     name='Raincloud plots',
-    description='Plot raincloud distributions for each group.'
+    description='Plot raincloud distributions for each group.',
+    examples={
+        'plot_rainclouds': ex.plot_rainclouds
+    }
 )
 
 plugin.methods.register_function(
@@ -241,7 +244,11 @@ plugin.pipelines.register_function(
     },
     citations=[citations['MannWhitney1947']],
     name='Per-facet Mann-Whitney U Test',
-    description=''
+    description='',
+    examples={
+        'mann_whitney_u_facet_across': ex.mann_whitney_facet_across,
+        'mann_whitney_u_facet_within': ex.mann_whitney_facet_within
+    }
 )
 
 plugin.pipelines.register_function(
@@ -264,7 +271,10 @@ plugin.pipelines.register_function(
     },
     citations=[citations['Wilcoxon1945']],
     name='Per-facet Wilcoxon Signed Rank Test',
-    description=''
+    description='',
+    examples={
+        'wilcoxon_srt_facet': ex.wilcoxon_srt_facet
+    }
 )
 
 T_time, T_subj, T_dist = TypeMap({
@@ -341,7 +351,11 @@ plugin.pipelines.register_function(
     },
     name='Alpha group significance test and plot',
     description='Will select between Wilcoxon SRT and Mann-Whitney U depending'
-                ' on the presence of repeated measures.'
+                ' on the presence of repeated measures.',
+    examples={
+        'alpha_group_significance_faith_pd':
+            ex.alpha_group_significance_faith_pd
+    }
 )
 
 # Load type half of the plugin

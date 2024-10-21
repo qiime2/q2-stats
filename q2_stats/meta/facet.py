@@ -1,3 +1,11 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2024, QIIME 2 development team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file LICENSE, distributed with this software.
+# ----------------------------------------------------------------------------
+
 import re
 import pandas as pd
 
@@ -77,6 +85,5 @@ def collate_stats(tables: pd.DataFrame) -> pd.DataFrame:
     stats['B:group'].attrs.update({
         'title': group_title
     })
-
 
     return stats

@@ -1,3 +1,11 @@
+# ----------------------------------------------------------------------------
+# Copyright (c) 2024, QIIME 2 development team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file LICENSE, distributed with this software.
+# ----------------------------------------------------------------------------
+
 
 def mann_whitney_u_facet(ctx, distribution, facet='within'):
     mann_whitney_u = ctx.get_action('stats', 'mann_whitney_u')
@@ -20,7 +28,7 @@ def mann_whitney_u_facet(ctx, distribution, facet='within'):
     return stats
 
 
-def wilcoxon_srt_facet(ctx, distribution, ignore_empty_comparator = True):
+def wilcoxon_srt_facet(ctx, distribution, ignore_empty_comparator=True):
     wilcoxon_srt = ctx.get_action('stats', 'wilcoxon_srt')
     facet_across = ctx.get_action('stats', 'facet_across')
     collate_stats = ctx.get_action('stats', 'collate_stats')
