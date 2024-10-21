@@ -154,7 +154,7 @@ def _4(obj: pd.DataFrame) -> TabularDataResourceDirFmt:
 
         metadata_obj.append(metadata)
 
-    metadata_dict = {'schema': {'fields': metadata_obj}}
+    metadata_dict = {'schema': {'fields': metadata_obj}, **obj.attrs}
     metadata_dict['format'] = 'ndjson'
     metadata_dict['path'] = 'data.ndjson'
     metadata_dict['name'] = 'data'

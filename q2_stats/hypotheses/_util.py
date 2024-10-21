@@ -22,7 +22,8 @@ def set_pairwise_attrs(df: pd.DataFrame,
 
     def measure(dist, group):
         return {
-           'title': f"{group_measure} of {dist['measure'].attrs['title']}",
+           'title': f"{group_measure} of "
+                    f"{dist['measure'].attrs.get('title', 'measure')}",
            'description': f'The {group_measure} measure of {group}.'
         }
 

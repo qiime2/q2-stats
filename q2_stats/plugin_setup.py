@@ -8,15 +8,25 @@
 
 import importlib
 
-from qiime2.plugin import Str, Plugin, Choices, Bool
+from qiime2.plugin import (
+    Str, Plugin, Choices, Bool, Metadata, List, TypeMap, TypeMatch,
+    Collection, Visualization)
+
+from q2_types.sample_data import SampleData, AlphaDiversity
 
 import q2_stats
 from q2_stats.hypotheses import mann_whitney_u, wilcoxon_srt
+from q2_stats.hypotheses.pairwise_facet import (
+    mann_whitney_u_facet, wilcoxon_srt_facet)
+from q2_stats.deprecated.alpha_group_significance import (
+    alpha_group_significance, prep_alpha_distribution)
+from q2_stats.meta.facet import collate_stats, facet_across, facet_within
 from q2_stats.plots import plot_rainclouds
 from q2_stats.types import (StatsTable, Pairwise, Dist1D, Multi,
                             Matched, Independent, Ordered, NestedOrdered,
                             Unordered, NestedUnordered)
 import q2_stats.examples as ex
+
 
 plugin = Plugin(name='stats',
                 version=q2_stats.__version__,
@@ -140,6 +150,135 @@ plugin.visualizers.register_function(
     parameter_descriptions={},
     name='Raincloud plots',
     description='Plot raincloud distributions for each group.'
+)
+
+plugin.methods.register_function(
+    function=facet_within,
+    inputs={
+        'distribution': Dist1D[Multi | NestedOrdered | NestedUnordered,
+                               Matched | Independent]
+    },
+    parameters={},
+    outputs={
+        'distributions': Collection[Dist1D[Unordered, Independent]]
+    },
+    name='',
+    description=''
+)
+
+T_dep = TypeMatch([Independent, Matched])
+T_nested, T_simple = TypeMap({
+    NestedOrdered: Ordered,
+    NestedUnordered: Unordered
+})
+plugin.methods.register_function(
+    function=facet_across,
+    inputs={
+        'distribution': Dist1D[T_nested, T_dep]
+    },
+    parameters={},
+    outputs={
+        'distributions': Collection[Dist1D[T_simple, T_dep]]
+    },
+    name='',
+    description=''
+)
+
+plugin.methods.register_function(
+    function=collate_stats,
+    inputs={
+        'tables': Collection[StatsTable[Pairwise]]
+    },
+    parameters={},
+    outputs={
+        'table': StatsTable[Pairwise]
+    },
+    name='',
+    description=''
+)
+
+T_dist, T_facet, _ = TypeMap({
+    (Dist1D[Multi, Independent],
+     Str % Choices('within')): Visualization,
+    (Dist1D[NestedOrdered | NestedUnordered, Matched],
+     Str % Choices('within')): Visualization,
+    (Dist1D[NestedOrdered | NestedUnordered, Independent],
+     Str % Choices('within', 'across')): Visualization,
+})
+
+plugin.pipelines.register_function(
+    function=mann_whitney_u_facet,
+    inputs={
+        'distribution': T_dist
+    },
+    parameters={
+        'facet': T_facet
+    },
+    outputs={
+        'stats': StatsTable[Pairwise]
+    },
+    name='',
+    description=''
+)
+
+plugin.pipelines.register_function(
+    function=wilcoxon_srt_facet,
+    inputs={
+        'distribution': Dist1D[Multi | NestedOrdered | NestedUnordered,
+                               Matched]
+    },
+    parameters={},
+    outputs={
+        'stats': StatsTable[Pairwise]
+    },
+    name='',
+    description=''
+)
+
+T_time, T_subj, T_dist = TypeMap({
+    (Str % Choices(''), Str % Choices('')): Dist1D[Multi, Independent],
+    (Str % Choices(''), Str): Dist1D[Multi, Matched],
+    (Str, Str % Choices('')): Dist1D[NestedOrdered, Independent],
+    (Str, Str): Dist1D[NestedOrdered, Matched]
+})
+plugin.methods.register_function(
+    deprecated=True,
+    function=prep_alpha_distribution,
+    inputs={
+        'alpha_diversity': SampleData[AlphaDiversity]
+    },
+    parameters={
+        'metadata': Metadata,
+        'columns': List[Str],
+        'subject': T_subj,
+        'timepoint': T_time,
+    },
+    outputs={
+        'distribution': T_dist
+    },
+    name='',
+    description='A prep-method to convert alpha diversity into a Dist1D'
+)
+
+plugin.pipelines.register_function(
+    deprecated=True,
+    function=alpha_group_significance,
+    inputs={
+        'alpha_diversity': SampleData[AlphaDiversity]
+    },
+    parameters={
+        'metadata': Metadata,
+        'columns': List[Str],
+        'subject': T_subj,
+        'timepoint': T_time,
+    },
+    outputs={
+        'distribution': T_dist,
+        'stats': StatsTable[Pairwise],
+        'raincloud': Visualization
+    },
+    name='',
+    description=''
 )
 
 # Load type half of the plugin

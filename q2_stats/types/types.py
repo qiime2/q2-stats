@@ -11,6 +11,7 @@ from qiime2.plugin import SemanticType
 StatsTable = SemanticType('StatsTable', field_names=['kind'])
 
 Pairwise = SemanticType('Pairwise', variant_of=StatsTable.field['kind'])
+Global = SemanticType('Global', variant_of=StatsTable.field['kind'])
 
 Dist1D = SemanticType('Dist1D', field_names=['order', 'dependence'])
 

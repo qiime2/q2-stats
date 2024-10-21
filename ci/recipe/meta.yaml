@@ -28,6 +28,7 @@ requirements:
     - scipy {{ scipy }}
     - jinja2
     - frictionless<=5.5.0
+    - statsmodels
     - qiime2 {{ qiime2_epoch }}.*
     - q2-types {{ qiime2_epoch }}.*
 

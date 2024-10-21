@@ -12,6 +12,8 @@ import jinja2
 import json
 import pandas as pd
 
+from q2_stats.util import json_replace
+
 
 def plot_rainclouds(output_dir: str, data: pd.DataFrame,
                     stats: pd.DataFrame = None):
@@ -96,26 +98,6 @@ def plot_rainclouds(output_dir: str, data: pd.DataFrame,
                               figure1=figure1, table1=table1))
 
 
-def json_replace(json_obj, **values):
-    """
-    Search for elements of `{"{{REPLACE_PARAM}}": "some_key"}` and replace
-    with the result of `values["some_key"]`.
-    """
-    if type(json_obj) is dict and list(json_obj) == ["{{REPLACE_PARAM}}"]:
-        param_name = json_obj["{{REPLACE_PARAM}}"]
-        return values[param_name]
-
-    if type(json_obj) is list:
-        return [json_replace(x, **values) for x in json_obj]
-
-    elif type(json_obj) is dict:
-        return {key: json_replace(value, **values)
-                for key, value in json_obj.items()}
-
-    else:
-        return json_obj
-
-
 def _make_stats(stats):
     method = stats['test-statistic'].attrs['title']
     group_unit = (stats['A:group'].attrs['title']
@@ -132,8 +114,15 @@ def _make_stats(stats):
     df[group_b.name] = group_b
     df['A'] = stats['A:measure']
     df['B'] = stats['B:measure']
-    df = df.merge(stats.iloc[:, 6:], left_index=True, right_index=True)
+    if 'facet' in stats:
+        df = df.merge(stats.iloc[:, 7:], left_index=True, right_index=True)
+        df.insert(0, 'facet', stats['facet'])
+        facet = [('Facet', stats['facet'].attrs['title'])]
+    else:
+        df = df.merge(stats.iloc[:, 6:], left_index=True, right_index=True)
+        facet = []
     df.columns = pd.MultiIndex.from_tuples([
+        *facet,
         ('Group A', stats['A:group'].attrs['title']),
         ('Group B', stats['B:group'].attrs['title']),
         ('A', stats['A:measure'].attrs['title']),

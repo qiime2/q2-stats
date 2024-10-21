@@ -348,7 +348,7 @@
         "facet": {
           "name": "subject_table",
           "data": "jitter_table",
-          "groupby": ["subject"]
+          "groupby": ["subject", "outer_group"]
         }
       },
       "data": [
@@ -357,7 +357,7 @@
           "source": "subject_table",
           "transform": [
             {"type": "filter", "expr": "$show_rain && $show_lightning"},
-            {"type": "collect", "sort": {"field": "group"}}
+            {"type": "collect", "sort": {"field": "inner_group"}}
           ]
         }
       ],
@@ -365,7 +365,7 @@
         {
           "type": "line",
           "from": {"data": "subject_line_table"},
-          "sort": {"field": "datum.group"},
+          "sort": {"field": "datum.outer_group"},
           "encode": {
             "update": {
               "x": {"scale": "measure_scale", "field": "measure"},

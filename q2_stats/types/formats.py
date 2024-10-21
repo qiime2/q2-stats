@@ -22,14 +22,7 @@ TableJSONLDirFmt = model.SingleFileDirectoryFormat(
 
 
 class NDJSONFileFormat(model.TextFileFormat):
-    """Format for JSON file.
-
-    first line is headers
-
-
-    More to be added on this later.
-
-    """
+    """Format for newline-delimited (ND) JSON file."""
     def _validate_(self, level):
         pass
 
@@ -37,8 +30,6 @@ class NDJSONFileFormat(model.TextFileFormat):
 class DataResourceSchemaFileFormat(model.TextFileFormat):
     """
     Format for data resource schema.
-
-    More on this later.
     """
     def _validate_(self, level):
         pass
