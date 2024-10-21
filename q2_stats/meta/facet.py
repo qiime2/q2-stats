@@ -48,6 +48,7 @@ def facet_across(distribution: pd.DataFrame) -> pd.DataFrame:
 def collate_stats(tables: pd.DataFrame) -> pd.DataFrame:
     stats = []
     last = None
+    groups = set()
     for key, df in tables.items():
         df.insert(0, 'facet', key)
         df['facet'].attrs.update({
@@ -56,11 +57,26 @@ def collate_stats(tables: pd.DataFrame) -> pd.DataFrame:
         stats.append(df)
 
         last = df
+        groups.add(df['A:group'].attrs.get('title', 'group'))
+        groups.add(df['B:group'].attrs.get('title', 'group'))
 
     stats = pd.concat(stats)
     stats = fdr_benjamini_hochberg(stats)
 
     for col in last.columns:
         stats[col].attrs.update(last[col].attrs)
+
+    if len(groups) == 1:
+        group_title = list(groups)[0]
+    else:
+        group_title = '(see facet)'
+
+    stats['A:group'].attrs.update({
+        'title': group_title
+    })
+    stats['B:group'].attrs.update({
+        'title': group_title
+    })
+
 
     return stats

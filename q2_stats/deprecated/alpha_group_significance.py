@@ -14,7 +14,7 @@ def alpha_group_significance(ctx, alpha_diversity, metadata, columns,
                           subject, timepoint)
     if subject != '':
         if timepoint != '':
-            stats, = wilcoxon_srt_facet(dist)
+            stats, = wilcoxon_srt_facet(dist, ignore_empty_comparator=True)
         else:
             raise ValueError('Missing timepoints for subjects')
     else:
@@ -46,4 +46,19 @@ def prep_alpha_distribution(alpha_diversity: pd.Series,
         dist['group'] = md_df[timepoint]
 
     dist = dist.reset_index(names='id')
+
+    dist['measure'].attrs.update({
+        'title': alpha_diversity.name or 'alpha-diversity'
+    })
+
+    if subject != '':
+        dist['subject'].attrs.update({
+            'title': subject
+        })
+    if timepoint != '':
+        dist['group'].attrs.update({
+            'title': timepoint
+        })
+
+
     return dist

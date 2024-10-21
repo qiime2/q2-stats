@@ -1,5 +1,5 @@
 
-def mann_whitney_u_facet(ctx, distribution, facet):
+def mann_whitney_u_facet(ctx, distribution, facet='within'):
     mann_whitney_u = ctx.get_action('stats', 'mann_whitney_u')
     facet_within = ctx.get_action('stats', 'facet_within')
     facet_across = ctx.get_action('stats', 'facet_across')
@@ -20,7 +20,7 @@ def mann_whitney_u_facet(ctx, distribution, facet):
     return stats
 
 
-def wilcoxon_srt_facet(ctx, distribution):
+def wilcoxon_srt_facet(ctx, distribution, ignore_empty_comparator = True):
     wilcoxon_srt = ctx.get_action('stats', 'wilcoxon_srt')
     facet_across = ctx.get_action('stats', 'facet_across')
     collate_stats = ctx.get_action('stats', 'collate_stats')
@@ -29,7 +29,9 @@ def wilcoxon_srt_facet(ctx, distribution):
 
     stats = {}
     for key, dist in dists.items():
-        stats[key], = wilcoxon_srt(dist, 'consecutive')
+        stats[key], = wilcoxon_srt(
+            dist, 'consecutive',
+            ignore_empty_comparator=ignore_empty_comparator)
 
     stats, = collate_stats(stats)
     return stats

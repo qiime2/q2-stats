@@ -10,7 +10,7 @@ import importlib
 
 from qiime2.plugin import (
     Str, Plugin, Choices, Bool, Metadata, List, TypeMap, TypeMatch,
-    Collection, Visualization)
+    Collection, Visualization, Citations)
 
 from q2_types.sample_data import SampleData, AlphaDiversity
 
@@ -28,6 +28,7 @@ from q2_stats.types import (StatsTable, Pairwise, Dist1D, Multi,
 import q2_stats.examples as ex
 
 
+citations = Citations.load('citations.bib', package='q2_stats')
 plugin = Plugin(name='stats',
                 version=q2_stats.__version__,
                 website='https://github.com/qiime2/q2-stats',
@@ -77,6 +78,7 @@ plugin.methods.register_function(
         'stats': 'The Mann-Whitney U table for either the "reference"'
                  ' or "all-pairwise" comparison.',
     },
+    citations=[citations['MannWhitney1947']],
     name='Mann-Whitney U Test',
     description='',
     examples={
@@ -126,6 +128,7 @@ plugin.methods.register_function(
         'stats': 'The Wilcoxon SRT table for either the "baseline"'
                  ' or "consecutive" comparison.',
     },
+    citations=[citations['Wilcoxon1945']],
     name='Wilcoxon Signed Rank Test',
     description='',
     examples={
@@ -162,8 +165,16 @@ plugin.methods.register_function(
     outputs={
         'distributions': Collection[Dist1D[Unordered, Independent]]
     },
-    name='',
-    description=''
+    input_descriptions={
+        'distribution': 'A nested or multi Dist1D which will be partitioned'
+                        ' into undordered and independent subgroups.'
+    },
+    output_descriptions={
+        'distributions': 'A collection of unordered and independent Dist1Ds.'
+    },
+    name='Facet within outer group',
+    description='Facets a distribution into independent distributions where'
+                ' each facet is an inner slice from the outer group.'
 )
 
 T_dep = TypeMatch([Independent, Matched])
@@ -180,8 +191,16 @@ plugin.methods.register_function(
     outputs={
         'distributions': Collection[Dist1D[T_simple, T_dep]]
     },
-    name='',
-    description=''
+    input_descriptions={
+        'distribution': 'A nested Dist1D which will be partitioned'
+                        ' into non-nested Dist1D'
+    },
+    output_descriptions={
+        'distributions': 'A collection of non-nested Dist1Ds'
+    },
+    name='Facet across outer group',
+    description='Facet a distribution into per-class/level distributions where'
+                ' each facet preserves the outer group structure.'
 )
 
 plugin.methods.register_function(
@@ -193,8 +212,8 @@ plugin.methods.register_function(
     outputs={
         'table': StatsTable[Pairwise]
     },
-    name='',
-    description=''
+    name='Combine and FDR correct multiple stats',
+    description='Converts a collection of stats tables into a single table'
 )
 
 T_dist, T_facet, _ = TypeMap({
@@ -217,7 +236,11 @@ plugin.pipelines.register_function(
     outputs={
         'stats': StatsTable[Pairwise]
     },
-    name='',
+    parameter_descriptions={
+        'facet': 'Whether to facet within or across the outer group.'
+    },
+    citations=[citations['MannWhitney1947']],
+    name='Per-facet Mann-Whitney U Test',
     description=''
 )
 
@@ -227,11 +250,20 @@ plugin.pipelines.register_function(
         'distribution': Dist1D[Multi | NestedOrdered | NestedUnordered,
                                Matched]
     },
-    parameters={},
+    parameters={
+        'ignore_empty_comparator': Bool,
+    },
+    parameter_descriptions={
+        'ignore_empty_comparator': 'Ignore any group that does not have any'
+                                   ' overlapping subjects with comparison'
+                                   ' group. These groups will have NaNs'
+                                   ' in the stats table output'
+    },
     outputs={
         'stats': StatsTable[Pairwise]
     },
-    name='',
+    citations=[citations['Wilcoxon1945']],
+    name='Per-facet Wilcoxon Signed Rank Test',
     description=''
 )
 
@@ -256,8 +288,22 @@ plugin.methods.register_function(
     outputs={
         'distribution': T_dist
     },
-    name='',
-    description='A prep-method to convert alpha diversity into a Dist1D'
+    input_descriptions={
+        'alpha_diversity': 'Alpha diversity which will become the "measure"'
+    },
+    parameter_descriptions={
+        'metadata': 'Sample metadata to use',
+        'columns': 'Columns to include as group information',
+        'subject': 'If provided, will cause the Dist1D to be matched for'
+                   ' repeated measures.',
+        'timepoint': 'If provided, will cause the Dist1D to be stratified by'
+                     ' timepoint. Required if using ``subject``.'
+    },
+    output_descriptions={
+        'distribution': 'The resulting Dist1D.'
+    },
+    name='Alpha diversity to Dist1D',
+    description='Alpha diversity to Dist1D'
 )
 
 plugin.pipelines.register_function(
@@ -277,8 +323,25 @@ plugin.pipelines.register_function(
         'stats': StatsTable[Pairwise],
         'raincloud': Visualization
     },
-    name='',
-    description=''
+    input_descriptions={
+        'alpha_diversity': 'Alpha diversity which will become the "measure"'
+    },
+    parameter_descriptions={
+        'metadata': 'Sample metadata to use',
+        'columns': 'Columns to include as group information',
+        'subject': 'If provided, will cause the results to be matched for'
+                   ' repeated measures.',
+        'timepoint': 'If provided, will cause the results to be stratified by'
+                     ' timepoint. Required if using ``subject``.'
+    },
+    output_descriptions={
+        'distribution': 'Dist1D generated by metadata and alpha diversity.',
+        'stats': 'A stats table of the per-group/timepoint results',
+        'raincloud': 'A visualization of the distribution and statistics'
+    },
+    name='Alpha group significance test and plot',
+    description='Will select between Wilcoxon SRT and Mann-Whitney U depending'
+                ' on the presence of repeated measures.'
 )
 
 # Load type half of the plugin
