@@ -10,7 +10,7 @@ import pandas as pd
 import frictionless as fls
 import json
 
-from ..formats import TableJSONL
+from ..formats import TableJSONLFileFormat
 
 from .. import (NDJSONFileFormat,
                 DataResourceSchemaFileFormat,
@@ -51,10 +51,13 @@ def table_jsonl_header(df: pd.DataFrame) -> str:
 
 
 @plugin.register_transformer
-def table_jsonl_to_df(ff: TableJSONL) -> pd.DataFrame:
+def table_jsonl_to_df(ff: TableJSONLFileFormat) -> pd.DataFrame:
     with ff.open() as fh:
         header = json.loads(next(fh))
         df = pd.read_json(fh, lines=True, orient='records')
+        if df.empty:
+            df = pd.DataFrame(columns=[
+                spec['name'] for spec in header['fields']])
 
     # The order of these steps matters.
 
@@ -93,14 +96,15 @@ def table_jsonl_to_df(ff: TableJSONL) -> pd.DataFrame:
 
 
 @plugin.register_transformer
-def df_to_table_jsonl(obj: pd.DataFrame) -> TableJSONL:
+def df_to_table_jsonl(obj: pd.DataFrame) -> TableJSONLFileFormat:
     header = table_jsonl_header(obj)
 
-    ff = TableJSONL()
+    ff = TableJSONLFileFormat()
     with ff.open() as fh:
         fh.write(header)
         fh.write('\n')
-        obj.to_json(fh, orient='records', lines=True, date_format='iso')
+        if not obj.empty:
+            obj.to_json(fh, orient='records', lines=True, date_format='iso')
 
     return ff
 

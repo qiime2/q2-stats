@@ -9,8 +9,9 @@
 import pandas as pd
 
 from qiime2.plugin.testing import TestPluginBase
+from qiime2.plugin.util import transform
 
-from .. import TabularDataResourceDirFmt
+from .. import TabularDataResourceDirFmt, TableJSONLFileFormat
 
 
 class TestTransformers(TestPluginBase):
@@ -23,4 +24,38 @@ class TestTransformers(TestPluginBase):
 
         exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
 
-        pd.testing.assert_frame_equal(obs, exp)
+        pd.testing.assert_frame_equal(obs, exp, check_dtype=False)
+
+    def test_empty_table_jsonl_to_dataframe(self):
+        _, obs = self.transform_format(TableJSONLFileFormat,
+                                       pd.DataFrame,
+                                       filename='empty_data_dist.table.jsonl')
+
+        exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
+
+        pd.testing.assert_frame_equal(obs, exp, check_dtype=False)
+
+    def _assert_jsonl_roundtrip(self, path):
+        exp, df = self.transform_format(TableJSONLFileFormat,
+                                        pd.DataFrame,
+                                        filename=path)
+        res = transform(df, to_type=TableJSONLFileFormat)
+
+        exp.validate()
+        res.validate()
+
+        with exp.open() as fh:
+            expected = fh.read()
+        with res.open() as fh:
+            result = fh.read()
+
+        self.assertEqual(result, expected)
+
+    def test_jsonl_roundtrip_empty(self):
+        self._assert_jsonl_roundtrip('empty_data_dist.table.jsonl')
+
+    def test_jsonl_roundtrip_refdist(self):
+        self._assert_jsonl_roundtrip('faithpd_refdist.table.jsonl')
+
+    def test_jsonl_roundtrip_timedist(self):
+        self._assert_jsonl_roundtrip('faithpd_timedist.table.jsonl')

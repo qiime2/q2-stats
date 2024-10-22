@@ -11,6 +11,7 @@ import importlib
 from .. import (NDJSONFileFormat,
                 DataResourceSchemaFileFormat,
                 TabularDataResourceDirFmt,
+                TableJSONLFileFormat, TableJSONLDirFmt,
                 StatsTable, Pairwise, Dist1D,
                 Matched, Independent, Ordered, Unordered, Multi,
                 NestedOrdered, NestedUnordered)
@@ -19,6 +20,7 @@ from ...plugin_setup import plugin
 
 plugin.register_formats(NDJSONFileFormat, DataResourceSchemaFileFormat,
                         TabularDataResourceDirFmt)
+plugin.register_formats(TableJSONLFileFormat, TableJSONLDirFmt)
 
 
 plugin.register_semantic_types(StatsTable, Pairwise, Dist1D,
@@ -29,7 +31,7 @@ plugin.register_semantic_type_to_format(
     Dist1D[Ordered | Unordered | NestedOrdered | NestedUnordered | Multi,
            Matched | Independent] |
     StatsTable[Pairwise],
-    TabularDataResourceDirFmt)
+    TableJSONLDirFmt)
 
 importlib.import_module('._transformers', __name__)
 importlib.import_module('._validators', __name__)

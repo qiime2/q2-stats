@@ -78,14 +78,15 @@ def _get_data_from_tests(path):
 
 def faithpd_timedist_factory():
     return qiime2.Artifact.import_data(
-        'Dist1D[Ordered, Matched]', _get_data_from_tests('faithpd_timedist')
+        'Dist1D[Ordered, Matched]',
+        _get_data_from_tests('faithpd_timedist.table.jsonl')
     )
 
 
 def faithpd_refdist_factory():
     return qiime2.Artifact.import_data(
         'Dist1D[Unordered, Independent]',
-        _get_data_from_tests('faithpd_refdist')
+        _get_data_from_tests('faithpd_refdist.table.jsonl')
     )
 
 
@@ -239,7 +240,7 @@ def alpha_group_significance_faith_pd(use):
         use.UsageInputs(
             alpha_diversity=alpha_div_faith_pd,
             metadata=metadata,
-            columns=['genotype', 'donor_status', 'cage_id', 'mouse_id'],
+            columns=['genotype', 'donor_status'],
         ),
         use.UsageOutputNames(
             distribution='dist2',
