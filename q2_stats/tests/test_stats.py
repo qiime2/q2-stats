@@ -10,14 +10,11 @@ import pandas as pd
 import numpy as np
 
 from qiime2.plugin.testing import TestPluginBase
-from qiime2.plugin import ValidationError
 
-from q2_stats._stats import wilcoxon_srt, mann_whitney_u, _compare_wilcoxon
-from q2_stats._examples import (faithpd_timedist_factory,
-                                faithpd_refdist_factory)
-from q2_stats._format import TabularDataResourceDirFmt
-from q2_stats._validator import (validate_all_dist_columns_present,
-                                 validate_unique_subjects_within_group)
+from q2_stats.hypotheses.pairwise import (
+    wilcoxon_srt, mann_whitney_u, _compare_wilcoxon)
+from q2_stats.examples import (faithpd_timedist_factory,
+                               faithpd_refdist_factory)
 
 
 class TestBase(TestPluginBase):
@@ -86,7 +83,7 @@ class TestStats(TestBase):
             'n': [17, 17, 18, 16],
             'test-statistic': [70.0, 26.0, 83.0, 24.0],
             'p-value': [0.758312, 0.016822, 0.913301, 0.022895],
-            'q-value': [1.000000, 0.067288, 0.913301, 0.045790]
+            'q-value': [0.913301, 0.0457895, 0.913301, 0.0457895]
         })
 
         stats_data = wilcoxon_srt(distribution=self.faithpd_timedist,
@@ -150,9 +147,9 @@ class TestStats(TestBase):
                         0.02321456407322841, 0.7941892150565809,
                         1.0, 0.06783185968744732, 0.023005953105134484,
                         0.0056718704407604376],
-            'q-value': [0.12582728, 0.13323839, 0.92828108, 0.94954299,
-                        0.07738188, 0.88243246, 1.0, 0.13566372,
-                        0.11502977, 0.0567187],
+            'q-value': [0.12582728, 0.13323839, 0.88243246, 0.88243246,
+                        0.07738188, 0.88243246, 1.0, 0.13323838,
+                        0.07738188, 0.0567187],
         })
 
         stats_data = mann_whitney_u(distribution=self.faithpd_refdist,
@@ -280,37 +277,3 @@ class TestStats(TestBase):
             'q-value': [float("Nan")]})
 
         pd.testing.assert_frame_equal(stats_data, exp_stats_data)
-
-
-class TestTransformers(TestBase):
-    def test_empty_tabular_data_resource_to_dataframe(self):
-        _, obs = self.transform_format(TabularDataResourceDirFmt,
-                                       pd.DataFrame,
-                                       filename='empty_data_dist')
-
-        exp = pd.DataFrame(columns=['id', 'measure', 'group', 'subject'])
-
-        pd.testing.assert_frame_equal(obs, exp)
-
-
-class TestValidators(TestBase):
-    def test_validators_missing_columns_in_dist(self):
-        with self.assertRaisesRegex(ValidationError, '"group" not found'
-                                    ' in distribution.'):
-            df = pd.DataFrame({
-                'id': ['S340445', 'S892825', 'S460691'],
-                'measure': [7.662921088, 8.431734297, 8.513263823]
-            })
-            validate_all_dist_columns_present(df, level=min)
-
-    def test_validators_unique_subjects_not_duplicated_per_group(self):
-        with self.assertRaisesRegex(ValidationError, 'Unique subject found'
-                                    ' more than once within an individual'
-                                    ' group.*0.*P26'):
-            df = pd.DataFrame({
-                'id': ['S116625', 'S813956'],
-                'measure': [7.662921088, 8.431734297],
-                'group': [0, 0],
-                'subject': ['P26', 'P26']
-            })
-            validate_unique_subjects_within_group(df, level=min)

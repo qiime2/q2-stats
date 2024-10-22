@@ -11,15 +11,18 @@ from qiime2.plugin import ValidationError, model
 from frictionless import validate
 
 
+class TableJSONLFileFormat(model.TextFileFormat):
+    def _validate_(self, level):
+        with self.open() as fh:
+            assert fh.read(33)[:33] == '{"doctype":{"name":"table.jsonl",'
+
+
+TableJSONLDirFmt = model.SingleFileDirectoryFormat(
+    'TableJSONLDirFmt', 'data.table.jsonl', TableJSONLFileFormat)
+
+
 class NDJSONFileFormat(model.TextFileFormat):
-    """Format for JSON file.
-
-    first line is headers
-
-
-    More to be added on this later.
-
-    """
+    """Format for newline-delimited (ND) JSON file."""
     def _validate_(self, level):
         pass
 
@@ -27,8 +30,6 @@ class NDJSONFileFormat(model.TextFileFormat):
 class DataResourceSchemaFileFormat(model.TextFileFormat):
     """
     Format for data resource schema.
-
-    More on this later.
     """
     def _validate_(self, level):
         pass

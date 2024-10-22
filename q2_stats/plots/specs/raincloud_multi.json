@@ -1,0 +1,690 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "autosize": {"type": "fit-x", "contains": "padding"},
+  "height": {"signal": "$row_height * $n_rows"},
+  "title": {"text": {"signal": "$title"}},
+  "padding": 5,
+
+  "comment": "duplicate keys (`comment`) are intentional, there's not a lot of legal spots in the schema for them",
+  "comment": "the row_table repeats the data filtering post-cross so that groupby (+ cross) works for a filtered level while preserving zero rows within a level",
+  "data": [
+    {
+      "name": "full_table",
+      "values": {"{{REPLACE_PARAM}}": "data"},
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "datum.class == $class"
+        },
+        {
+          "type": "formula",
+          "as": "outer_group",
+          "expr": "$transpose ? datum.level : datum.group"
+        },
+        {
+          "type": "formula",
+          "as": "inner_group",
+          "expr": "$transpose ? datum.group : datum.level"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "source": "full_table",
+      "transform": [
+        {
+          "type": "filter",
+          "expr": "$level == '' ? true : datum.level == $level"
+        }
+      ]
+    },
+    {
+      "name": "jitter_table",
+      "source": "table",
+      "transform": [
+        {
+          "type": "formula",
+          "expr": "$show_rain ? sampleUniform() : 0",
+          "as": "jitter"
+        },
+        {
+          "type": "window",
+          "groupby": [{"expr": "datum.subject || datum.id"}],
+          "ops": ["first_value"],
+          "fields": ["jitter"],
+          "as": ["jitter"]
+        }
+      ]
+    },
+    {
+      "name": "row_table",
+      "source": "table",
+      "transform": [
+        {"type": "aggregate", "groupby": ["group", "level"], "cross": true,
+         "fields": ["class"], "as": ["count"]},
+        {
+          "type": "formula",
+          "as": "outer_group",
+          "expr": "$transpose ? datum.level : datum.group"
+        },
+        {
+          "type": "formula",
+          "as": "inner_group",
+          "expr": "$transpose ? datum.group : datum.level"
+        },
+        {
+          "type": "filter",
+          "expr": "$level == '' ? datum.count > 0 : datum.level == $level"
+        }
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "width",
+      "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 300",
+      "on": [
+        {
+          "update": "isFinite(containerSize()[0]) ? containerSize()[0] : 300",
+          "events": "window:resize"
+        }
+      ]
+    },
+    {"name": "$n_rows", "value": 1, "update": "length(data('row_table'))"},
+    {
+      "name": "$class",
+      "value": {"{{REPLACE_PARAM}}": "class"},
+      "update": "$selection[0]"
+    },
+    {
+      "name": "$level",
+      "value": "",
+      "update": "$selection[1]"
+    },
+    {
+      "name": "$selection",
+      "value": [{"{{REPLACE_PARAM}}": "class"}, ""],
+      "bind": {
+        "input": "select",
+        "labels": {"{{REPLACE_PARAM}}": "selection_labels"},
+        "options": {"{{REPLACE_PARAM}}": "selection_opts"}
+      }
+    },
+    {"name": "$transpose", "value": true, "bind": {"input": "checkbox"}},
+    {
+      "name": "$row_height",
+      "value": 70,
+      "bind": {"input": "range", "min": 40, "max": 255},
+      "on": [
+        {
+          "comment": "force a redraw if something related to the axes changes, the `force` param doesn't work as the initial layout seems to be outside the dataflow, so instead alternate by adding epsilon and rounding",
+          "events": [{"signal": "$level"}, {"signal": "$selection"}, {"signal": "$transpose"}, {"signal": "width"}],
+          "update": "$row_height == floor($row_height) ? $row_height + 0.00001 : floor($row_height)"
+        }
+      ]
+    },
+    {
+      "name": "$title",
+      "value": {"{{REPLACE_PARAM}}": "title"},
+      "bind": {"input": "input"}
+    },
+    {"name": "$y_label", "value": {"{{REPLACE_PARAM}}": "y_label"}, "bind": {"input": "input"}},
+    {"name": "$x_label", "value": {"{{REPLACE_PARAM}}": "x_label"}, "bind": {"input": "input"}},
+    {"name": "$include_zero", "value": true, "bind": {"input": "checkbox"}},
+    {"name": "$show_cloud", "value": true, "bind": {"input": "checkbox"}},
+    {
+      "name": "$boxplot_extent",
+      "value": 0.33,
+      "bind": {"input": "range", "min": 0, "max": 1}
+    },
+    {"name": "$show_rain", "value": true, "bind": {"input": "checkbox"}},
+    {"{{REPLACE_PARAM}}": "lightning"},
+    {
+      "name": "unit",
+      "value": {},
+      "on": [
+        {"events": "mousemove", "update": "isTuple(group()) ? group() : unit"}
+      ]
+    },
+    {
+      "name": "$grid_value",
+      "on": [
+        {
+          "events": [
+            {"source": "view", "type": "dblclick"},
+            {"signal": "$include_zero"}
+          ],
+          "update": "null"
+        },
+        {
+          "events": {"signal": "$grid_translate_delta"},
+          "update": "panLinear($grid_translate_anchor.extent_x, -$grid_translate_delta.x / width)"
+        },
+        {
+          "events": {"signal": "$grid_zoom_delta"},
+          "update": "zoomLinear(domain(\"measure_scale\"), $grid_zoom_anchor.x, $grid_zoom_delta)"
+        }
+      ]
+    },
+    {
+      "name": "$grid_translate_anchor",
+      "value": {},
+      "on": [
+        {
+          "events": [{"source": "view", "type": "mousedown"}],
+          "update": "{x: x(unit), extent_x: domain(\"measure_scale\")}"
+        }
+      ]
+    },
+    {
+      "name": "$grid_translate_delta",
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [
+                {"source": "view", "type": "mousedown"},
+                {"source": "window", "type": "mouseup"}
+              ]
+            }
+          ],
+          "update": "{x: $grid_translate_anchor.x - x(unit)}"
+        }
+      ]
+    },
+    {
+      "name": "$grid_zoom_anchor",
+      "on": [
+        {
+          "events": [{"source": "view", "type": "wheel", "consume": true}],
+          "update": "{x: invert(\"measure_scale\", x(unit))}"
+        }
+      ]
+    },
+    {
+      "name": "$grid_zoom_delta",
+      "on": [
+        {
+          "events": [{"source": "view", "type": "wheel", "consume": true}],
+          "force": true,
+          "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
+        }
+      ]
+    },
+    {
+      "name": "$active",
+      "value": false,
+      "on": [
+        {
+          "events": "@rain:mousedown, @rain:touchstart, @rain:mouseover",
+          "update": "datum.subject || datum.id"
+        },
+        {
+          "events": "window:mouseup, window:touchend, @rain:mouseout",
+          "update": "false"
+        }
+      ]
+    }
+  ],
+
+  "comment": "these scales look messy, but they are mostly defining relative offsets from a parent and boxplot centerline",
+  "scales": [
+    {
+      "name": "color_scale",
+      "type": "ordinal",
+      "domain": {"data": "full_table", "field": "level", "sort": true},
+      "range": "category"
+    },
+    {
+      "name": "group_scale",
+      "type": "band",
+      "domain": {"data": "row_table", "field": "outer_group", "sort": true},
+      "range": [0, {"signal": "$row_height * $n_rows"}],
+      "padding": 0,
+      "round": true
+    },
+    {
+      "name": "measure_scale",
+      "domain": {"data": "full_table", "field": "measure"},
+      "nice": true,
+      "range": "width",
+      "zero": {"signal": "$include_zero"},
+      "domainRaw": {"signal": "$grid_value"}
+    },
+    {
+      "name": "inner_group_scale",
+      "type": "band",
+      "domain": {"data": "row_table", "field": "inner_group", "sort": true},
+      "range": [0, {"signal": "bandwidth('group_scale')"}],
+      "padding": 0,
+      "round": true
+    },
+    {
+      "name": "inner_jitter_scale",
+      "domain": [0, 1],
+      "range": [
+        {
+          "signal": "scale('inner_boxplot_center_scale', 0) + scale('inner_boxplot_extent_scale', $boxplot_extent)/2 + 7"
+        },
+        {"signal": "bandwidth('inner_group_scale') - 7"}
+      ]
+    },
+    {
+      "name": "inner_boxplot_center_scale",
+      "domain": [0, 1],
+      "range": [
+        {
+          "signal": "$show_cloud == $show_rain ? bandwidth('inner_group_scale')/2 : $show_rain ? scale('inner_boxplot_extent_scale', $boxplot_extent)/2 + 4 : max(bandwidth('inner_group_scale') - scale('inner_boxplot_extent_scale', $boxplot_extent)/2 - 2, bandwidth('inner_group_scale')/2)"
+        },
+        0
+      ]
+    },
+    {
+      "name": "inner_boxplot_extent_scale",
+      "domain": [0, 1],
+      "range": [
+        0,
+        {
+          "signal": "max(bandwidth('inner_group_scale') - ($show_rain ? $show_cloud ? 28 : 16 : 4), 5)"
+        }
+      ]
+    }
+  ],
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "measure_scale",
+      "title": {"signal": "$x_label"}
+    },
+    {
+      "orient": "left",
+      "scale": "group_scale",
+      "bandPosition": 0,
+      "title": {"signal": "$y_label"},
+      "grid": true,
+      "gridWidth": 3,
+      "tickWidth": 3,
+      "tickSize": 10,
+      "labelFontSize": 12,
+      "labelFontWeight":"bold"
+    }
+  ],
+  "marks": [
+    {
+      "comment": "this group holds the inner axes, which will not display without data, so we join on the row_table",
+      "type": "group",
+      "from": {
+        "facet": {
+          "name": "outer_row_table",
+          "groupby": ["outer_group"],
+          "data": "row_table"
+        }
+      },
+      "axes": [
+        {
+          "orient": "right",
+          "scale": "inner_group_scale",
+          "bandPosition": 0,
+          "translate": 0,
+          "grid": true
+        }
+      ],
+      "encode": {
+        "update": {
+          "y": {"scale": "group_scale", "field": "outer_group"},
+          "width": {"signal": "width"},
+          "height": {"signal": "bandwidth('group_scale')"}
+        }
+      }
+    },
+    {
+      "type": "group",
+      "clip": true,
+      "from": {
+        "facet": {
+          "name": "subject_table",
+          "data": "jitter_table",
+          "groupby": ["subject", "outer_group"]
+        }
+      },
+      "data": [
+        {
+          "name": "subject_line_table",
+          "source": "subject_table",
+          "transform": [
+            {"type": "filter", "expr": "$show_rain && $show_lightning"},
+            {"type": "collect", "sort": {"field": "inner_group"}}
+          ]
+        }
+      ],
+      "marks": [
+        {
+          "type": "line",
+          "from": {"data": "subject_line_table"},
+          "sort": {"field": "datum.outer_group"},
+          "encode": {
+            "update": {
+              "x": {"scale": "measure_scale", "field": "measure"},
+              "y": {
+                "signal": "scale('group_scale', datum.outer_group) + scale('inner_group_scale', datum.inner_group) + scale('inner_jitter_scale', datum.jitter)"
+              },
+              "stroke": {"value": "black"},
+              "strokeOpacity": [
+                {"test": "datum.subject == $active", "value": 1},
+                {"value": 0.1}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "from": {
+        "facet": {
+          "name": "outer_facet_table",
+          "groupby": ["outer_group"],
+          "data": "jitter_table"
+        }
+      },
+      "encode": {
+        "update": {
+          "y": {"scale": "group_scale", "field": "outer_group"},
+          "width": {"signal": "width"},
+          "height": {"signal": "bandwidth('group_scale')"}
+        }
+      },
+
+      "marks": [
+        {
+          "comment": "this group is created for each of the subplots",
+          "type": "group",
+          "clip": true,
+          "from": {
+            "facet": {
+              "name": "inner_facet_table",
+              "groupby": ["inner_group"],
+              "data": "outer_facet_table"
+            }
+          },
+
+          "comment": "this weird domain prevents Infinite extent warning when using a field over empty data",
+          "scales": [
+            {
+              "name": "inner_kde_scale",
+              "domain": {"signal": "extent(pluck(data('facet_kde_table'), 'density'))"},
+              "range": [{"signal": "scale('inner_boxplot_center_scale', 0)"}, 7]
+            }
+          ],
+
+
+          "comment": "the bizarre sequence of transforms for the boxplot tables avoids baked-in memoization on min/max that falls apart when dynamically filtering data upstream",
+          "data": [
+             {
+              "name": "facet_kde_table",
+              "source": "inner_facet_table",
+              "transform": [
+                {"type": "filter", "expr": "$show_cloud"},
+                {
+                  "type": "kde",
+                  "field": "measure",
+                  "groupby": ["level"],
+                  "as": ["measure", "density"]
+                }
+              ]
+            },
+            {
+              "name": "facet_rain_table",
+              "source": "inner_facet_table",
+              "transform": [{"type": "filter", "expr": "$show_rain"}]
+            },
+            {
+              "name": "facet_minmax",
+              "source": "inner_facet_table",
+              "transform": [
+                {"type": "filter", "expr": "$boxplot_extent > 0"},
+                {
+                  "type": "aggregate",
+                  "groupby": ["inner_group"],
+                  "ops": ["min", "max"],
+                  "fields": ["measure", "measure"]
+                }
+              ]
+            },
+            {
+              "name": "facet_boxplot_table",
+              "source": "inner_facet_table",
+              "transform": [
+                {"type": "filter", "expr": "$boxplot_extent > 0"},
+                {
+                  "type": "aggregate",
+                  "groupby": ["level", "inner_group"],
+                  "ops": ["q3", "median", "q1"],
+                  "fields": ["measure", "measure", "measure"]
+                },
+                {
+                  "type":"lookup",
+                  "key": "inner_group",
+                  "fields": ["inner_group"],
+                  "values": ["min_measure", "max_measure"],
+                  "from": "facet_minmax"
+                }
+              ]
+            },
+            {
+              "name": "facet_aesthetic_line_table",
+              "source": "inner_facet_table",
+              "transform": [
+                {"type": "filter", "expr": "$boxplot_extent == 0 && $show_cloud"},
+                {
+                  "type": "aggregate",
+                  "ops": ["min", "max"],
+                  "fields": ["measure", "measure"]
+                }
+              ]
+            }
+          ],
+
+          "comment": "nothing especially weird lurks below, just using scales which describe a relative offset from our encoded y on the parent group",
+          "encode": {
+            "update": {
+              "y": {"scale": "inner_group_scale", "field": "inner_group"}
+            }
+          },
+
+          "marks": [
+            {
+              "type": "area",
+              "from": {"data": "facet_kde_table"},
+              "encode": {
+                "enter": {},
+                "update": {
+                  "fill": {"scale": "color_scale", "field": "level"},
+                  "y": {"scale": "inner_kde_scale", "value": 0},
+                  "y2": {"scale": "inner_kde_scale", "field": "density"},
+                  "x": {"scale": "measure_scale", "field": "measure"},
+                  "tooltip": {"signal": "datum"},
+                  "fillOpacity": [
+                    {"test": "$active && $show_lightning", "value": 0.5},
+                    {"value": 1}
+                  ]
+                }
+              }
+            },
+            {
+              "type": "symbol",
+              "name": "rain",
+              "shape": "circle",
+              "from": {"data": "facet_rain_table"},
+              "encode": {
+                "enter": {
+                  "opacity": {"value": 0.7}
+                },
+                "update": {
+                  "fill": {"scale": "color_scale", "field": "level"},
+                  "x": {"scale": "measure_scale", "field": "measure"},
+                  "y": {"scale": "inner_jitter_scale", "field": "jitter"},
+                  "tooltip": {"signal": "datum"},
+                  "size": [
+                    {"test": "datum.subject == $active || datum.id == $active", "value": 200},
+                    {"value": 50}
+                  ]
+                }
+              }
+            },
+            {
+              "type": "group",
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "fill": {"scale": "color_scale", "field": "level"},
+                      "strokeWidth": {"value": 2},
+                      "stroke": {"value": "black"},
+                      "cornerRadius": {"value": 2},
+                      "x": {"scale": "measure_scale", "field": "q1_measure"},
+                      "x2": {"scale": "measure_scale", "field": "q3_measure"},
+                      "yc": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "height": {
+                        "scale": "inner_boxplot_extent_scale",
+                        "signal": "$boxplot_extent"
+                      },
+                      "tooltip": {"signal": "datum"},
+                      "fillOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.2},
+                        {"value": 1}
+                      ],
+                      "strokeOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "rule",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "strokeWidth": {"value": 2},
+                      "x": {"scale": "measure_scale", "field": "min_measure"},
+                      "x2": {"scale": "measure_scale", "field": "q1_measure"},
+                      "y": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "tooltip": {"signal": "datum"},
+                      "strokeOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "rule",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "strokeWidth": {"value": 2},
+                      "x": {"scale": "measure_scale", "field": "q3_measure"},
+                      "x2": {"scale": "measure_scale", "field": "max_measure"},
+                      "y": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "tooltip": {"signal": "datum"},
+                      "strokeOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "rect",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "fill": {"value": "black"},
+                      "xc": {"scale": "measure_scale", "field": "min_measure"},
+                      "yc": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "height": {
+                        "scale": "inner_boxplot_extent_scale",
+                        "signal": "$boxplot_extent"
+                      },
+                      "width": {"value": 2},
+                      "tooltip": {"signal": "datum"},
+                      "fillOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "rect",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "fill": {"value": "black"},
+                      "xc": {"scale": "measure_scale", "field": "max_measure"},
+                      "yc": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "height": {
+                        "scale": "inner_boxplot_extent_scale",
+                        "signal": "$boxplot_extent"
+                      },
+                      "width": {"value": 2},
+                      "tooltip": {"signal": "datum"},
+                      "fillOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "rect",
+                  "from": {"data": "facet_boxplot_table"},
+                  "encode": {
+                    "update": {
+                      "fill": {"value": "black"},
+                      "xc": {"scale": "measure_scale", "field": "median_measure"},
+                      "yc": {"scale": "inner_boxplot_center_scale", "value": 0},
+                      "height": {
+                        "scale": "inner_boxplot_extent_scale",
+                        "signal": "$boxplot_extent"
+                      },
+                      "width": {"value": 4},
+                      "tooltip": {"signal": "datum"},
+                      "fillOpacity": [
+                        {"test": "$active && $show_lightning", "value": 0.5},
+                        {"value": 1}
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "rule",
+              "from": {"data": "facet_aesthetic_line_table"},
+              "encode": {
+                "update": {
+                  "strokeWidth": {"value": 2},
+                  "x": {"scale": "measure_scale", "field": "min_measure"},
+                  "x2": {"scale": "measure_scale", "field": "max_measure"},
+                  "y": {"scale": "inner_boxplot_center_scale", "value": 0},
+                  "strokeOpacity": [
+                    {"test": "$active && $show_lightning", "value": 0.5},
+                    {"value": 1}
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

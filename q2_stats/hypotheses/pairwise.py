@@ -10,6 +10,9 @@ import itertools
 import pandas as pd
 import scipy.stats
 
+from q2_stats.hypotheses._util import set_pairwise_attrs
+from q2_stats.meta import fdr_benjamini_hochberg
+
 
 def mann_whitney_u(distribution: pd.DataFrame, compare: str,
                    reference_group: str = None,
@@ -58,32 +61,9 @@ def mann_whitney_u(distribution: pd.DataFrame, compare: str,
         raise ValueError('Not enough groups to compare.')
 
     df = pd.DataFrame(table)
-
-    df['q-value'] = _fdr_correction(df['p-value'])
-
-    df = df[['A:group', 'A:n', 'A:measure', 'B:group', 'B:n', 'B:measure',
-             'n', 'test-statistic', 'p-value', 'q-value']]
-
-    df['A:group'].attrs.update(dists[idx_a]['group'].attrs)
-    df['B:group'].attrs.update(dists[idx_b]['group'].attrs)
-    n = {'title': 'count', 'description': '...'}
-    df['A:n'].attrs.update(n)
-    df['B:n'].attrs.update(n)
-    measure = {
-        'title': 'Median ' + distribution['measure'].attrs['title'],
-        'description': '...'
-    }
-    df['A:measure'].attrs.update(measure)
-    df['B:measure'].attrs.update(measure)
-    df['n'].attrs.update(dict(title='count', description='...'))
-    df['test-statistic'].attrs.update(dict(title='Mann-Whitney U',
-                                           description='...'))
-    pval = alternative
-    if p_val_approx != 'auto':
-        pval += ', ' + p_val_approx
-    df['p-value'].attrs.update(dict(title=pval, description='...'))
-    df['q-value'].attrs.update(
-        dict(title='Benjamini–Hochberg', description='...'))
+    df = fdr_benjamini_hochberg(df)
+    df = _set_attrs_mannwhitneyu(df, dists[idx_a], dists[idx_b],
+                                 alternative, p_val_approx)
 
     return df
 
@@ -129,6 +109,27 @@ def _compare_mannwhitneyu(group_a, group_b, alternative, p_val_approx):
     }
 
 
+def _set_attrs_mannwhitneyu(df, group_a, group_b, alternative, p_val_approx):
+    if p_val_approx == 'auto':
+        null_desc = (
+            'considered either asymptotically normal,'
+            ' or, if there are no ties and few observations, the exact'
+            ' Mann-Whitney U distribution.')
+    elif p_val_approx == 'asymptotic':
+        null_desc = ' asymptotically normal'
+    else:
+        null_desc = ' the exact Mann-Whitney U distribution'
+
+    df = set_pairwise_attrs(
+        df, group_a, group_b,
+        group_measure='Median',
+        test_stat='Mann-Whitney U',
+        test_desc='The Mann-Whitney U test statistic of group A.',
+        p_val=f'{alternative}, {p_val_approx}', null_desc=null_desc)
+
+    return df
+
+
 def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
                  baseline_group: str = None,
                  alternative: str = 'two-sided',
@@ -172,32 +173,9 @@ def wilcoxon_srt(distribution: pd.DataFrame, compare: str,
         raise ValueError('Not enough groups to compare.')
 
     df = pd.DataFrame(table)
-
-    df['q-value'] = _fdr_correction(df['p-value'])
-
-    df = df[['A:group', 'A:n', 'A:measure', 'B:group', 'B:n', 'B:measure',
-             'n', 'test-statistic', 'p-value', 'q-value']]
-
-    df['A:group'].attrs.update(distribution['group'].attrs)
-    df['B:group'].attrs.update(distribution['group'].attrs)
-    n = {'title': 'count', 'description': '...'}
-    df['A:n'].attrs.update(n)
-    df['B:n'].attrs.update(n)
-    measure = {
-        'title': 'Median ' + distribution['measure'].attrs['title'],
-        'description': '...'
-    }
-    df['A:measure'].attrs.update(measure)
-    df['B:measure'].attrs.update(measure)
-    df['n'].attrs.update(dict(title='count', description='...'))
-    df['test-statistic'].attrs.update(dict(title='Wilcoxon Signed Rank',
-                                           description='...'))
-    pval = alternative
-    if p_val_approx != 'auto':
-        pval += ', ' + p_val_approx
-    df['p-value'].attrs.update(dict(title=pval, description='...'))
-    df['q-value'].attrs.update(
-        dict(title='Benjamini–Hochberg', description='...'))
+    df = fdr_benjamini_hochberg(df)
+    df = _set_attrs_wilcoxon(
+        df, distribution, alternative, p_val_approx)
 
     return df
 
@@ -262,12 +240,25 @@ def _compare_wilcoxon(group_a, group_b, alternative, p_val_approx,
     return results
 
 
-def _fdr_correction(p_vals):
-    ranked_p_values = scipy.stats.rankdata(p_vals)
-    fdr = p_vals * len(p_vals) / ranked_p_values
-    fdr[fdr > 1] = 1
+def _set_attrs_wilcoxon(df, group, alternative, p_val_approx):
+    if p_val_approx == 'auto':
+        null_desc = (
+            'considered either asymptotically normal,'
+            ' or, if there are no ties and few observations, the exact'
+            ' Wilcoxon T distribution.')
+    elif p_val_approx == 'asymptotic':
+        null_desc = ' asymptotically normal'
+    else:
+        null_desc = ' the exact Wilcoxon T distribution'
 
-    return fdr
+    df = set_pairwise_attrs(
+        df, group, group,
+        group_measure='Median',
+        test_stat='Wilcoxon T',
+        test_desc='The sum of rank differences.',
+        p_val=f'{alternative}, {p_val_approx}', null_desc=null_desc)
+
+    return df
 
 
 def _alternative_comps(alternative):
