@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 0ece290
+_src_path: https://github.com/qiime2/q2-setup-template.git
+module_name: stats
+plugin_name: q2_stats
+project_author_email: elizabeth.gehret@nau.edu
+project_author_name: Liz Gehret
+project_description: QIIME 2 Plugin used for statistical analyses.
+project_license_family: null
+project_license_type: BSD-3-Clause
+project_name: q2-stats
+project_urls_homepage: https://github.com/qiime2/q2-stats
+project_urls_repository: https://github.com/qiime2/q2-stats
